@@ -1,0 +1,7 @@
+name: Excursion
+version: 0.1
+main: org.tyrannyofheaven.bukkit.Excursion.ExcursionPlugin
+commands:
+  visit:
+    description: Visit the specified world
+    usage: /<command> [world]
