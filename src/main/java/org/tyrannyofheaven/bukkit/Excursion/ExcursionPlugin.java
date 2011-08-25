@@ -6,16 +6,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.persistence.PersistenceException;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -35,6 +40,17 @@ public class ExcursionPlugin extends JavaPlugin {
     private final Map<String, String> groupMap = new HashMap<String, String>();
     
     private ExcursionDao dao;
+
+    private final Set<Material> unsafeGround;
+
+    public ExcursionPlugin() {
+        // Set up unsafe ground. Make configurable someday?
+        Set<Material> unsafeGround = new HashSet<Material>();
+        unsafeGround.add(Material.LAVA);
+        unsafeGround.add(Material.STATIONARY_LAVA);
+        unsafeGround.add(Material.FIRE);
+        this.unsafeGround = Collections.unmodifiableSet(unsafeGround);
+    }
 
     ExcursionDao getDao() {
         return dao;
@@ -151,6 +167,10 @@ public class ExcursionPlugin extends JavaPlugin {
 
         // Get destination location
         Location newLocation = getDao().loadLocation(player, primaryWorld);
+        if (!checkDestination(newLocation)) {
+            player.sendMessage(ChatColor.YELLOW + "Destination is unsafe; teleporting to spawn");
+            newLocation = null;
+        }
         if (newLocation == null) {
             // Player is visiting a new place, teleport to spawn
             newLocation = world.getSpawnLocation();
@@ -211,6 +231,34 @@ public class ExcursionPlugin extends JavaPlugin {
                     groupMap.put(member, key);
             }
         }
+    }
+
+    private boolean isSolidBlock(Block block) {
+        // Thanks to @Crash for pointing this out
+        return block.getTypeId() != 0 && net.minecraft.server.Block.byId[block.getTypeId()].a();
+    }
+
+    private boolean checkDestination(Location location) {
+        Block legs = location.getBlock();
+        Block head = legs.getRelative(0, 1, 0);
+        
+        if (isSolidBlock(legs) || isSolidBlock(head))
+            return false; // space is occupied
+        
+        final int MAX_HEIGHT = -4; // maximum number of air blocks to allow between legs and ground (relative to legs, so negative)
+        Block ground = null;
+        for (int i = -1; i >= MAX_HEIGHT; i--) {
+            Block check = legs.getRelative(0, i, 0);
+            if (!check.isEmpty()) {
+                ground = check;
+                break;
+            }
+        }
+        
+        if (ground == null)
+            return false; // would take damage from falling
+        
+        return !unsafeGround.contains(ground.getType());
     }
 
 }
