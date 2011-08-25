@@ -11,6 +11,8 @@ public class SavedLocation {
     @EmbeddedId
     private SavedLocationId id;
 
+    private String world;
+
     private double x;
     
     private double y;
@@ -25,8 +27,9 @@ public class SavedLocation {
     public SavedLocation() {
     }
     
-    public SavedLocation(String world, String player, double x, double y, double z, float yaw, float pitch) {
-        setId(new SavedLocationId(world, player));
+    public SavedLocation(String group, String world, String player, double x, double y, double z, float yaw, float pitch) {
+        setId(new SavedLocationId(group, player));
+        setWorld(world);
         setX(x);
         setY(y);
         setZ(z);
@@ -40,6 +43,14 @@ public class SavedLocation {
 
     public void setId(SavedLocationId id) {
         this.id = id;
+    }
+
+    public String getWorld() {
+        return world;
+    }
+
+    public void setWorld(String world) {
+        this.world = world;
     }
 
     public double getX() {
@@ -98,8 +109,8 @@ public class SavedLocation {
 
     @Override
     public String toString() {
-        return String.format("SavedLocation[world=%s,player=%s, (x,y,z)=(%f,%f,%f), yaw=%f, pitch=%f]",
-                id.getWorld(), id.getPlayer(),
+        return String.format("SavedLocation[group=%s,world=%s,player=%s,(x,y,z)=(%f,%f,%f),yaw=%f,pitch=%f]",
+                getId().getGroup(), getWorld(), getId().getPlayer(),
                 getX(), getY(), getZ(),
                 getYaw(), getPitch());
     }

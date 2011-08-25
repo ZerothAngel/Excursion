@@ -1,0 +1,6 @@
+aliases:
+  world:
+  - survival
+groups:
+  world:
+  - world_nether

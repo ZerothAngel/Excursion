@@ -13,27 +13,41 @@ public class AvajeExcursionDao implements ExcursionDao {
     }
 
     @Override
-    public Location loadLocation(Player player, World world) {
-        SavedLocationId id = new SavedLocationId(world.getName(), player.getName());
-        SavedLocation sl = plugin.getDatabase().find(SavedLocation.class, id);
-        if (sl != null) {
-            return new Location(world, sl.getX(), sl.getY(), sl.getZ(), sl.getYaw(), sl.getPitch());
+    public Location loadLocation(Player player, String group) {
+        plugin.getDatabase().beginTransaction();
+        try {
+            SavedLocationId id = new SavedLocationId(group, player.getName());
+            SavedLocation sl = plugin.getDatabase().find(SavedLocation.class, id);
+            if (sl != null) {
+                World world = plugin.getServer().getWorld(sl.getWorld());
+                if (world != null)
+                    return new Location(world, sl.getX(), sl.getY(), sl.getZ(), sl.getYaw(), sl.getPitch());
+                else {
+                    // Hm, world is no longer there, delete this SavedLocation
+                    plugin.getDatabase().delete(sl);
+                    plugin.getDatabase().commitTransaction();
+                }
+            }
+            return null;
         }
-        return null;
+        finally {
+            plugin.getDatabase().endTransaction();
+        }
     }
 
     @Override
-    public void saveLocation(Player player, Location location) {
+    public void saveLocation(Player player, String group, Location location) {
         plugin.getDatabase().beginTransaction();
         try {
-            SavedLocationId id = new SavedLocationId(location.getWorld().getName(), player.getName());
+            SavedLocationId id = new SavedLocationId(group, player.getName());
             SavedLocation sl = plugin.getDatabase().find(SavedLocation.class, id);
             if (sl == null) {
                 // Never visited this world
-                sl = new SavedLocation(location.getWorld().getName(), player.getName(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+                sl = new SavedLocation(group, location.getWorld().getName(), player.getName(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
             }
             else {
                 // Update location in this world
+                sl.setWorld(location.getWorld().getName());
                 sl.setX(location.getX());
                 sl.setY(location.getY());
                 sl.setZ(location.getZ());

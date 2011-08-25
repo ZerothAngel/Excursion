@@ -1,4 +1,3 @@
 World blacklist
-World aliases? e.g. survival -> world
-World groups? e.g. world, world_nether = one location
-
+DONE World aliases? e.g. survival -> world
+DONE World groups? e.g. world, world_nether = one location
