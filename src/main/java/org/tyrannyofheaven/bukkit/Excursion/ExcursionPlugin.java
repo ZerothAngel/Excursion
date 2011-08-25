@@ -12,11 +12,14 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ExcursionPlugin extends JavaPlugin {
 
     private final Logger logger = Logger.getLogger("Minecraft");
+
+    private PluginDescriptionFile pdf;
 
     private ExcursionDao dao;
 
@@ -43,8 +46,9 @@ public class ExcursionPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        pdf = getDescription();
         log("Starting up...");
-
+        
         if (!getDataFolder().exists())
             getDataFolder().mkdirs();
 
@@ -63,13 +67,6 @@ public class ExcursionPlugin extends JavaPlugin {
     }
 
     boolean visit(Player player, String worldName) {
-        // Check permission
-        if (!player.hasPermission("excursion.visit")) {
-            player.sendMessage(ChatColor.RED + "You need the following permission to do this:");
-            player.sendMessage(ChatColor.GREEN + "- excursion.visit");
-            return true;
-        }
-
         // Resolve destination world
         World world = getServer().getWorld(worldName);
         if (world == null) {
@@ -108,7 +105,7 @@ public class ExcursionPlugin extends JavaPlugin {
     }
 
     void log(String format, Object... args) {
-        logger.info("[Excursion] " + String.format(format, args));
+        logger.info(String.format("[%s] %s", pdf.getName(), String.format(format, args)));
     }
 
     @Override
@@ -116,6 +113,13 @@ public class ExcursionPlugin extends JavaPlugin {
         if (!(sender instanceof Player))
             return true;
         Player player = (Player)sender;
+
+        // Check permission
+        if (!player.hasPermission("excursion.visit")) {
+            player.sendMessage(ChatColor.RED + "You need the following permission to do this:");
+            player.sendMessage(ChatColor.GREEN + "- excursion.visit");
+            return true;
+        }
 
         if (args.length != 1) {
             return false;
