@@ -1,5 +1,7 @@
 name: Excursion
 version: 0.1
+description: A teleport plugin that remembers your previous location in the world.
+author: ZerothAngel
 main: org.tyrannyofheaven.bukkit.Excursion.ExcursionPlugin
 database: true
 commands:
