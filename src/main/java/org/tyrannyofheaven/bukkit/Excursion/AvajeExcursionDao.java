@@ -24,7 +24,6 @@ public class AvajeExcursionDao implements ExcursionDao {
 
     @Override
     public void saveLocation(Player player, Location location) {
-        boolean success = false;
         plugin.getDatabase().beginTransaction();
         try {
             SavedLocationId id = new SavedLocationId(location.getWorld().getName(), player.getName());
@@ -42,13 +41,10 @@ public class AvajeExcursionDao implements ExcursionDao {
                 sl.setPitch(location.getPitch());
             }
             plugin.getDatabase().save(sl);
-            success = true;
+            plugin.getDatabase().commitTransaction();
         }
         finally {
-            if (success)
-                plugin.getDatabase().commitTransaction();
-            else
-                plugin.getDatabase().rollbackTransaction();
+            plugin.getDatabase().endTransaction();
         }
     }
 

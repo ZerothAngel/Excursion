@@ -1,9 +1,10 @@
 package org.tyrannyofheaven.bukkit.Excursion;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+
+import javax.persistence.PersistenceException;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -46,8 +47,16 @@ public class ExcursionPlugin extends JavaPlugin {
 
         if (!getDataFolder().exists())
             getDataFolder().mkdirs();
-        if (!new File(getDataFolder(), "Excursion.db").exists())
+
+        // Create tables if they don't already exist
+        try {
+            // Check if the main table exists
+            getDatabase().createQuery(SavedLocation.class).findRowCount();
+        }
+        catch (PersistenceException e) {
+            log("Creating SQL tables...");
             installDDL();
+        }
 
         setDao(new AvajeExcursionDao(this));
         getCommand("visit").setExecutor(this);
