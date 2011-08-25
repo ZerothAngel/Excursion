@@ -54,6 +54,8 @@ public class ExcursionPlugin extends JavaPlugin {
 
     private final Map<String, String> groupMap = new HashMap<String, String>();
     
+    private final Set<String> blacklist = new HashSet<String>();
+
     private ExcursionDao dao;
 
     private final Set<Material> unsafeGround;
@@ -96,9 +98,13 @@ public class ExcursionPlugin extends JavaPlugin {
         // Create data folder if it doesn't exist
         if (!getDataFolder().exists())
             getDataFolder().mkdirs();
+
+        // Create config if it doesn't exist
         File configFile = new File(getDataFolder(), "config.yml");
         if (!configFile.exists())
             writeDefaultConfig(configFile);
+
+        // Read config
         parseConfig(configFile);
 
         // Create tables if they don't already exist
@@ -178,13 +184,21 @@ public class ExcursionPlugin extends JavaPlugin {
         }
 
         // Save location
-        getDao().saveLocation(player, currentPrimaryWorld, currentLocation);
+        if (!blacklist.contains(currentPrimaryWorld))
+            getDao().saveLocation(player, currentPrimaryWorld, currentLocation);
 
         // Get destination location
-        Location newLocation = getDao().loadLocation(player, primaryWorld);
-        if (!checkDestination(newLocation)) {
-            player.sendMessage(ChatColor.YELLOW + "Destination is unsafe; teleporting to spawn");
-            newLocation = null;
+        Location newLocation = null;
+        if (!blacklist.contains(primaryWorld)) {
+            // Load previous location, if any
+            newLocation = getDao().loadLocation(player, primaryWorld);
+
+            // Check if destination is safe
+            if (newLocation != null && !checkDestination(newLocation)) {
+                player.sendMessage(ChatColor.YELLOW + "Destination is unsafe; teleporting to spawn");
+                // NB: If this is a group, the player goes to the primary world's spawn
+                newLocation = null;
+            }
         }
         if (newLocation == null) {
             // Player is visiting a new place, teleport to spawn
@@ -236,6 +250,7 @@ public class ExcursionPlugin extends JavaPlugin {
             }
         }
         
+        // Groups
         groupMap.clear();
         ConfigurationNode groupNode = config.getNode("groups");
         if (groupNode != null) {
@@ -246,6 +261,10 @@ public class ExcursionPlugin extends JavaPlugin {
                     groupMap.put(member, key);
             }
         }
+
+        // Blacklist
+        blacklist.clear();
+        blacklist.addAll(config.getStringList("blacklist", null));
     }
 
     private boolean isSolidBlock(Block block) {

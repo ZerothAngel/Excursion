@@ -31,3 +31,14 @@ aliases:
 groups:
   world:
   - world_nether
+
+# Blacklist. When /visit'ing out of a blacklisted world, previous locations are
+# not saved. When /visit'ing to a blacklisted world, players will always
+# teleport to the world's (or group's primary world's) spawn point.
+#
+# Note that this blacklist does NOT determine world access. Use the
+# excursion.access.<world> permissions for that.
+
+#blacklist:
+#- creative
+#- pvp
