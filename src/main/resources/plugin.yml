@@ -1,6 +1,7 @@
 name: Excursion
 version: 0.1
 main: org.tyrannyofheaven.bukkit.Excursion.ExcursionPlugin
+database: true
 commands:
   visit:
     description: Visit the specified world

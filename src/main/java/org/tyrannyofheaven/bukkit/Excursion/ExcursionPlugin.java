@@ -1,5 +1,8 @@
 package org.tyrannyofheaven.bukkit.Excursion;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -25,6 +28,14 @@ public class ExcursionPlugin extends JavaPlugin {
     }
 
     @Override
+    public List<Class<?>> getDatabaseClasses() {
+        List<Class<?>> result = new ArrayList<Class<?>>();
+        result.add(SavedLocationId.class);
+        result.add(SavedLocation.class);
+        return result;
+    }
+
+    @Override
     public void onDisable() {
         log("Shutting down...");
     }
@@ -35,8 +46,10 @@ public class ExcursionPlugin extends JavaPlugin {
 
         if (!getDataFolder().exists())
             getDataFolder().mkdirs();
+        if (!new File(getDataFolder(), "Excursion.db").exists())
+            installDDL();
 
-        setDao(new YamlExcursionDao(getDataFolder()));
+        setDao(new AvajeExcursionDao(this));
         getCommand("visit").setExecutor(this);
     }
 
