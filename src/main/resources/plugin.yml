@@ -6,3 +6,10 @@ commands:
   visit:
     description: Visit the specified world
     usage: /<command> [world]
+permissions:
+  excursion.visit:
+    description: Allows use of the /visit command
+    default: op
+  excursion.access.*:
+    description: Allows access to all worlds
+    default: op

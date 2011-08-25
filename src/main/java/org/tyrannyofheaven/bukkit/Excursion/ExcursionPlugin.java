@@ -63,10 +63,25 @@ public class ExcursionPlugin extends JavaPlugin {
     }
 
     boolean visit(Player player, String worldName) {
+        // Check permission
+        if (!player.hasPermission("excursion.visit")) {
+            player.sendMessage(ChatColor.RED + "You need the following permission to do this:");
+            player.sendMessage(ChatColor.GREEN + "- excursion.visit");
+            return true;
+        }
+
         // Resolve destination world
         World world = getServer().getWorld(worldName);
         if (world == null) {
             player.sendMessage(ChatColor.RED + "Invalid world.");
+            return true;
+        }
+
+        // Check world access
+        if (!player.hasPermission("excursion.access.*") && !player.hasPermission("excursion.access." + world.getName())) {
+            player.sendMessage(ChatColor.RED + "You need one of the following permissions to do this:");
+            player.sendMessage(ChatColor.GREEN + "- excursion.access.*");
+            player.sendMessage(ChatColor.GREEN + "- excursion.access." + world.getName());
             return true;
         }
 
