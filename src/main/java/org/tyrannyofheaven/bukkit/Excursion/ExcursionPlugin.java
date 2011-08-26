@@ -39,7 +39,6 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
@@ -47,8 +46,6 @@ import org.bukkit.util.config.ConfigurationNode;
 public class ExcursionPlugin extends JavaPlugin {
 
     private final Logger logger = Logger.getLogger("Minecraft");
-
-    private PluginDescriptionFile pdf;
 
     private final Map<String, String> aliasMap = new HashMap<String, String>();
 
@@ -92,7 +89,6 @@ public class ExcursionPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        pdf = getDescription();
         log("Starting up...");
         
         // Create data folder if it doesn't exist
@@ -105,7 +101,7 @@ public class ExcursionPlugin extends JavaPlugin {
             writeDefaultConfig(configFile);
 
         // Read config
-        parseConfig(configFile);
+        parseConfig();
 
         // Create tables if they don't already exist
         try {
@@ -211,7 +207,7 @@ public class ExcursionPlugin extends JavaPlugin {
     }
 
     void log(String format, Object... args) {
-        logger.info(String.format("[%s] %s", pdf.getName(), String.format(format, args)));
+        logger.info(String.format("[%s] %s", getDescription().getName(), String.format(format, args)));
     }
 
     @Override
@@ -234,9 +230,8 @@ public class ExcursionPlugin extends JavaPlugin {
         return visit(player, args[0]);
     }
 
-    private void parseConfig(File configFile) {
-        Configuration config = new Configuration(configFile);
-        config.load();
+    private void parseConfig() {
+        Configuration config = getConfiguration();
         
         // Aliases
         aliasMap.clear();
