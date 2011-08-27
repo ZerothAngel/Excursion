@@ -55,15 +55,15 @@ public class ExcursionPlugin extends JavaPlugin {
 
     private ExcursionDao dao;
 
-    private final Set<Material> unsafeGround;
+    private static final Set<Material> unsafeGround;
 
-    public ExcursionPlugin() {
+    static {
         // Set up unsafe ground. Make configurable someday?
-        Set<Material> unsafeGround = new HashSet<Material>();
-        unsafeGround.add(Material.LAVA);
-        unsafeGround.add(Material.STATIONARY_LAVA);
-        unsafeGround.add(Material.FIRE);
-        this.unsafeGround = Collections.unmodifiableSet(unsafeGround);
+        Set<Material> materials = new HashSet<Material>();
+        materials.add(Material.LAVA);
+        materials.add(Material.STATIONARY_LAVA);
+        materials.add(Material.FIRE);
+        unsafeGround = Collections.unmodifiableSet(materials);
     }
 
     ExcursionDao getDao() {
@@ -84,12 +84,12 @@ public class ExcursionPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        log("Shutting down...");
+        log("%s disabled.", getDescription().getVersion());
     }
 
     @Override
     public void onEnable() {
-        log("Starting up...");
+        log("%s enabled.", getDescription().getVersion());
         
         // Create data folder if it doesn't exist
         if (!getDataFolder().exists())
@@ -103,15 +103,20 @@ public class ExcursionPlugin extends JavaPlugin {
         // Read config
         parseConfig();
 
+        int rows = 0;
+        
         // Create tables if they don't already exist
         try {
             // Check if the main table exists
-            getDatabase().createQuery(SavedLocation.class).findRowCount();
+            rows = getDatabase().createQuery(SavedLocation.class).findRowCount();
         }
         catch (PersistenceException e) {
             log("Creating SQL tables...");
             installDDL();
+            log("Done.");
         }
+
+        log("Database contains %d saved location%s.", rows, rows == 1 ? "" : "s");
 
         setDao(new AvajeExcursionDao(this));
         getCommand("visit").setExecutor(this);
@@ -191,7 +196,7 @@ public class ExcursionPlugin extends JavaPlugin {
 
             // Check if destination is safe
             if (newLocation != null && !checkDestination(newLocation)) {
-                player.sendMessage(ChatColor.YELLOW + "Destination is unsafe; teleporting to spawn");
+                player.sendMessage(ChatColor.YELLOW + "Destination is unsafe; teleporting to spawn.");
                 // NB: If this is a group, the player goes to the primary world's spawn
                 newLocation = null;
             }
@@ -276,7 +281,7 @@ public class ExcursionPlugin extends JavaPlugin {
         
         final int MAX_HEIGHT = -4; // maximum number of air blocks to allow between legs and ground (relative to legs, so negative)
         Block ground = null;
-        for (int i = -1; i >= MAX_HEIGHT; i--) {
+        for (int i = 0; i >= MAX_HEIGHT; i--) { // NB: start at zero to allow for non-air, transparent blocks
             Block check = legs.getRelative(0, i, 0);
             if (!check.isEmpty()) {
                 ground = check;
