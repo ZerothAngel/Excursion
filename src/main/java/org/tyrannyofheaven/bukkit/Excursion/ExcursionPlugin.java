@@ -237,6 +237,7 @@ public class ExcursionPlugin extends JavaPlugin {
 
     private void parseConfig() {
         Configuration config = getConfiguration();
+        config.load();
         
         // Aliases
         aliasMap.clear();
