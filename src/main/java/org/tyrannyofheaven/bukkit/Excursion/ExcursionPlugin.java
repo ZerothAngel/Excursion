@@ -128,10 +128,15 @@ public class ExcursionPlugin extends JavaPlugin {
             OutputStream os = new FileOutputStream(configFile);
             try {
                 InputStream is = getClass().getResourceAsStream("config.yml");
-                byte[] buffer = new byte[4096];
-                int readLen;
-                while ((readLen = is.read(buffer)) != -1) {
-                    os.write(buffer, 0, readLen);
+                try {
+                    byte[] buffer = new byte[4096];
+                    int readLen;
+                    while ((readLen = is.read(buffer)) != -1) {
+                        os.write(buffer, 0, readLen);
+                    }
+                }
+                finally {
+                    is.close();
                 }
             }
             finally {
