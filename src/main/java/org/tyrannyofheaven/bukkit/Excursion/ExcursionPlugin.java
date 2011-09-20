@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.persistence.PersistenceException;
 
@@ -45,8 +44,6 @@ import org.bukkit.util.config.ConfigurationNode;
 
 public class ExcursionPlugin extends JavaPlugin {
 
-    private final Logger logger = Logger.getLogger("Minecraft");
-
     private final Map<String, String> aliasMap = new HashMap<String, String>();
 
     private final Map<String, String> groupMap = new HashMap<String, String>();
@@ -63,6 +60,7 @@ public class ExcursionPlugin extends JavaPlugin {
         materials.add(Material.LAVA);
         materials.add(Material.STATIONARY_LAVA);
         materials.add(Material.FIRE);
+        materials.add(Material.CACTUS);
         unsafeGround = Collections.unmodifiableSet(materials);
     }
 
@@ -217,7 +215,7 @@ public class ExcursionPlugin extends JavaPlugin {
     }
 
     void log(String format, Object... args) {
-        logger.info(String.format("[%s] %s", getDescription().getName(), String.format(format, args)));
+        getServer().getLogger().info(String.format("[%s] %s", getDescription().getName(), String.format(format, args)));
     }
 
     @Override
