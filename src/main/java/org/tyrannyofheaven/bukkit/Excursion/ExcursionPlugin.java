@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,16 +53,39 @@ public class ExcursionPlugin extends JavaPlugin {
 
     private ExcursionDao dao;
 
+    private static final Set<Material> solidBlocks;
+
     private static final Set<Material> unsafeGround;
 
     static {
-        // Set up unsafe ground. Make configurable someday?
-        Set<Material> materials = new HashSet<Material>();
-        materials.add(Material.LAVA);
-        materials.add(Material.STATIONARY_LAVA);
-        materials.add(Material.FIRE);
-        materials.add(Material.CACTUS);
-        unsafeGround = Collections.unmodifiableSet(materials);
+        // Make these lists configurable someday?
+        
+        // Solid blocks
+	Material[] solids = { Material.STONE, Material.GRASS, Material.DIRT,
+		Material.COBBLESTONE, Material.WOOD, Material.BEDROCK,
+		Material.SAND, Material.GRAVEL, Material.GOLD_ORE,
+		Material.IRON_ORE, Material.COAL_ORE, Material.LOG,
+		Material.LEAVES, Material.SPONGE, Material.LAPIS_ORE,
+		Material.LAPIS_BLOCK, Material.DISPENSER, Material.SANDSTONE,
+		Material.NOTE_BLOCK, Material.WOOL, Material.GOLD_BLOCK,
+		Material.IRON_BLOCK, Material.DOUBLE_STEP, Material.BRICK,
+		Material.TNT, Material.BOOKSHELF, Material.MOSSY_COBBLESTONE,
+		Material.OBSIDIAN, Material.DIAMOND_ORE,
+		Material.DIAMOND_BLOCK, Material.WORKBENCH, Material.FURNACE,
+		Material.BURNING_FURNACE, Material.REDSTONE_ORE,
+		Material.GLOWING_REDSTONE_ORE, Material.SNOW_BLOCK,
+		Material.CLAY, Material.JUKEBOX, Material.PUMPKIN,
+		Material.NETHERRACK, Material.SOUL_SAND, Material.GLOWSTONE,
+		Material.JACK_O_LANTERN, Material.LOCKED_CHEST,
+		Material.MONSTER_EGGS, Material.SMOOTH_BRICK,
+		Material.HUGE_MUSHROOM_1, Material.HUGE_MUSHROOM_2,
+		Material.MELON_BLOCK };
+        solidBlocks = Collections.unmodifiableSet(new HashSet<Material>(Arrays.asList(solids)));
+
+        // Unsafe ground
+        Material[] unsafe = { Material.LAVA, Material.STATIONARY_LAVA,
+                Material.FIRE, Material.CACTUS };
+        unsafeGround = Collections.unmodifiableSet(new HashSet<Material>(Arrays.asList(unsafe)));
     }
 
     ExcursionDao getDao() {
@@ -118,6 +142,17 @@ public class ExcursionPlugin extends JavaPlugin {
 
         setDao(new AvajeExcursionDao(this));
         getCommand("visit").setExecutor(this);
+        
+        // Cheap way to determine solid blocks.
+        // However, relies on obfuscated function.
+        // Subvert to build our solid block list for now.
+//        List<String> solids = new ArrayList<String>();
+//        for (Material m : Material.values()) {
+//            if (!m.isBlock()) continue;
+//            if (m.getId() != 0 && net.minecraft.server.Block.byId[m.getId()].a())
+//                solids.add("Material." + m);
+//        }
+//        log("solids = %s", solids);
     }
 
     private void writeDefaultConfig(File configFile) {
@@ -272,8 +307,7 @@ public class ExcursionPlugin extends JavaPlugin {
     }
 
     private boolean isSolidBlock(Block block) {
-        // Thanks to @Crash for pointing this out
-        return block.getTypeId() != 0 && net.minecraft.server.Block.byId[block.getTypeId()].a();
+        return solidBlocks.contains(block.getType());
     }
 
     private boolean checkDestination(Location location) {
