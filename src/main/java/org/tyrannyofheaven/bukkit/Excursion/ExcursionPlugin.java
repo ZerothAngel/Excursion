@@ -15,11 +15,9 @@
  */
 package org.tyrannyofheaven.bukkit.Excursion;
 
+import static org.tyrannyofheaven.bukkit.util.ToHUtils.copyResourceToFile;
+
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,20 +26,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 import javax.persistence.PersistenceException;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
+import org.tyrannyofheaven.bukkit.util.ToHUtils;
+import org.tyrannyofheaven.bukkit.util.command.ToHCommandExecutor;
 
 public class ExcursionPlugin extends JavaPlugin {
 
@@ -53,33 +48,33 @@ public class ExcursionPlugin extends JavaPlugin {
 
     private ExcursionDao dao;
 
-    private static final Set<Material> solidBlocks;
+    static final Set<Material> solidBlocks;
 
-    private static final Set<Material> unsafeGround;
+    static final Set<Material> unsafeGround;
 
     static {
         // Make these lists configurable someday?
         
         // Solid blocks
-	Material[] solids = { Material.STONE, Material.GRASS, Material.DIRT,
-		Material.COBBLESTONE, Material.WOOD, Material.BEDROCK,
-		Material.SAND, Material.GRAVEL, Material.GOLD_ORE,
-		Material.IRON_ORE, Material.COAL_ORE, Material.LOG,
-		Material.LEAVES, Material.SPONGE, Material.LAPIS_ORE,
-		Material.LAPIS_BLOCK, Material.DISPENSER, Material.SANDSTONE,
-		Material.NOTE_BLOCK, Material.WOOL, Material.GOLD_BLOCK,
-		Material.IRON_BLOCK, Material.DOUBLE_STEP, Material.BRICK,
-		Material.TNT, Material.BOOKSHELF, Material.MOSSY_COBBLESTONE,
-		Material.OBSIDIAN, Material.DIAMOND_ORE,
-		Material.DIAMOND_BLOCK, Material.WORKBENCH, Material.FURNACE,
-		Material.BURNING_FURNACE, Material.REDSTONE_ORE,
-		Material.GLOWING_REDSTONE_ORE, Material.SNOW_BLOCK,
-		Material.CLAY, Material.JUKEBOX, Material.PUMPKIN,
-		Material.NETHERRACK, Material.SOUL_SAND, Material.GLOWSTONE,
-		Material.JACK_O_LANTERN, Material.LOCKED_CHEST,
-		Material.MONSTER_EGGS, Material.SMOOTH_BRICK,
-		Material.HUGE_MUSHROOM_1, Material.HUGE_MUSHROOM_2,
-		Material.MELON_BLOCK };
+        Material[] solids = { Material.STONE, Material.GRASS, Material.DIRT,
+                Material.COBBLESTONE, Material.WOOD, Material.BEDROCK,
+                Material.SAND, Material.GRAVEL, Material.GOLD_ORE,
+                Material.IRON_ORE, Material.COAL_ORE, Material.LOG,
+                Material.LEAVES, Material.SPONGE, Material.LAPIS_ORE,
+                Material.LAPIS_BLOCK, Material.DISPENSER, Material.SANDSTONE,
+                Material.NOTE_BLOCK, Material.WOOL, Material.GOLD_BLOCK,
+                Material.IRON_BLOCK, Material.DOUBLE_STEP, Material.BRICK,
+                Material.TNT, Material.BOOKSHELF, Material.MOSSY_COBBLESTONE,
+                Material.OBSIDIAN, Material.DIAMOND_ORE,
+                Material.DIAMOND_BLOCK, Material.WORKBENCH, Material.FURNACE,
+                Material.BURNING_FURNACE, Material.REDSTONE_ORE,
+                Material.GLOWING_REDSTONE_ORE, Material.SNOW_BLOCK,
+                Material.CLAY, Material.JUKEBOX, Material.PUMPKIN,
+                Material.NETHERRACK, Material.SOUL_SAND, Material.GLOWSTONE,
+                Material.JACK_O_LANTERN, Material.LOCKED_CHEST,
+                Material.MONSTER_EGGS, Material.SMOOTH_BRICK,
+                Material.HUGE_MUSHROOM_1, Material.HUGE_MUSHROOM_2,
+                Material.MELON_BLOCK };
         solidBlocks = Collections.unmodifiableSet(new HashSet<Material>(Arrays.asList(solids)));
 
         // Unsafe ground
@@ -92,8 +87,16 @@ public class ExcursionPlugin extends JavaPlugin {
         return dao;
     }
 
-    private void setDao(ExcursionDao dao) {
-        this.dao = dao;
+    Map<String, String> getAliasMap() {
+        return aliasMap;
+    }
+
+    Map<String, String> getGroupMap() {
+        return groupMap;
+    }
+
+    Set<String> getBlacklist() {
+        return blacklist;
     }
 
     @Override
@@ -117,13 +120,16 @@ public class ExcursionPlugin extends JavaPlugin {
         if (!getDataFolder().exists())
             getDataFolder().mkdirs();
 
-        // Create config if it doesn't exist
+        // Create config file, if needed
         File configFile = new File(getDataFolder(), "config.yml");
-        if (!configFile.exists())
-            writeDefaultConfig(configFile);
+        if (!configFile.exists()) {
+            copyResourceToFile(this, "config.yml", configFile);
+            // Re-load config
+            getConfiguration().load();
+        }
 
         // Read config
-        parseConfig();
+        readConfig();
 
         int rows = 0;
         
@@ -140,8 +146,12 @@ public class ExcursionPlugin extends JavaPlugin {
 
         log("Database contains %d saved location%s.", rows, rows == 1 ? "" : "s");
 
-        setDao(new AvajeExcursionDao(this));
-        getCommand("visit").setExecutor(this);
+        // Set up DAO
+        dao = new AvajeExcursionDao(this);
+
+        CommandExecutor ce = new ToHCommandExecutor<ExcursionPlugin>(this, new ExcursionCommand(this));
+        getCommand("visit").setExecutor(ce);
+        getCommand("excursion").setExecutor(ce);
         
         // Cheap way to determine solid blocks.
         // However, relies on obfuscated function.
@@ -155,125 +165,11 @@ public class ExcursionPlugin extends JavaPlugin {
 //        log("solids = %s", solids);
     }
 
-    private void writeDefaultConfig(File configFile) {
-        try {
-            // Copy from internal version
-            OutputStream os = new FileOutputStream(configFile);
-            try {
-                InputStream is = getClass().getResourceAsStream("config.yml");
-                try {
-                    byte[] buffer = new byte[4096];
-                    int readLen;
-                    while ((readLen = is.read(buffer)) != -1) {
-                        os.write(buffer, 0, readLen);
-                    }
-                }
-                finally {
-                    is.close();
-                }
-            }
-            finally {
-                os.close();
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace(); // This really the right way to handle errors in bukkit?
-        }
-    }
-
-    boolean visit(Player player, String group) {
-        // Resolve destination world
-        String alias = aliasMap.get(group);
-        if (alias != null)
-            group = alias;
-
-        // Group members map to their primary world
-        String primaryWorld = groupMap.get(group);
-        if (primaryWorld == null)
-            primaryWorld = group; // not in a group or is a primary world
-            
-        // Check if world exists
-        World world = getServer().getWorld(primaryWorld);
-        if (world == null) {
-            player.sendMessage(ChatColor.RED + "Invalid world.");
-            return true;
-        }
-
-        // Check world access
-        // (group access based on primary world)
-        if (!player.hasPermission("excursion.access.*") && !player.hasPermission("excursion.access." + primaryWorld)) {
-            player.sendMessage(ChatColor.RED + "You need one of the following permissions to do this:");
-            player.sendMessage(ChatColor.GREEN + "- excursion.access.*");
-            player.sendMessage(ChatColor.GREEN + "- excursion.access." + primaryWorld);
-            return true;
-        }
-
-        // Get current location
-        Location currentLocation = player.getLocation();
-
-        // Resolve primary world for current world
-        String currentWorld = currentLocation.getWorld().getName();
-        String currentPrimaryWorld = groupMap.get(currentWorld);
-        if (currentPrimaryWorld == null)
-            currentPrimaryWorld = currentWorld;
-
-        if (currentPrimaryWorld.equals(primaryWorld)) {
-            player.sendMessage(ChatColor.RED + "You are already there.");
-            return true;
-        }
-
-        // Save location
-        if (!blacklist.contains(currentPrimaryWorld))
-            getDao().saveLocation(player, currentPrimaryWorld, currentLocation);
-
-        // Get destination location
-        Location newLocation = null;
-        if (!blacklist.contains(primaryWorld)) {
-            // Load previous location, if any
-            newLocation = getDao().loadLocation(player, primaryWorld);
-
-            // Check if destination is safe
-            if (newLocation != null && !checkDestination(newLocation)) {
-                player.sendMessage(ChatColor.YELLOW + "Destination is unsafe; teleporting to spawn.");
-                // NB: If this is a group, the player goes to the primary world's spawn
-                newLocation = null;
-            }
-        }
-        if (newLocation == null) {
-            // Player is visiting a new place, teleport to spawn
-            newLocation = world.getSpawnLocation();
-        }
-
-        // Go there!
-        player.teleport(newLocation);
-        return true;
-    }
-
     void log(String format, Object... args) {
-        getServer().getLogger().info(String.format("[%s] %s", getDescription().getName(), String.format(format, args)));
+        ToHUtils.log(this, Level.INFO, format, args);
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player))
-            return true;
-        Player player = (Player)sender;
-
-        // Check permission
-        if (!player.hasPermission("excursion.visit")) {
-            player.sendMessage(ChatColor.RED + "You need the following permission to do this:");
-            player.sendMessage(ChatColor.GREEN + "- excursion.visit");
-            return true;
-        }
-
-        if (args.length != 1) {
-            return false;
-        }
-
-        return visit(player, args[0]);
-    }
-
-    private void parseConfig() {
+    private void readConfig() {
         Configuration config = getConfiguration();
         config.load();
         
@@ -306,31 +202,9 @@ public class ExcursionPlugin extends JavaPlugin {
         blacklist.addAll(config.getStringList("blacklist", null));
     }
 
-    private boolean isSolidBlock(Block block) {
-        return solidBlocks.contains(block.getType());
-    }
-
-    private boolean checkDestination(Location location) {
-        Block legs = location.getBlock();
-        Block head = legs.getRelative(0, 1, 0);
-        
-        if (isSolidBlock(legs) || isSolidBlock(head))
-            return false; // space is occupied
-        
-        final int MAX_HEIGHT = -4; // maximum number of air blocks to allow between legs and ground (relative to legs, so negative)
-        Block ground = null;
-        for (int i = 0; i >= MAX_HEIGHT; i--) { // NB: start at zero to allow for non-air, transparent blocks
-            Block check = legs.getRelative(0, i, 0);
-            if (!check.isEmpty()) {
-                ground = check;
-                break;
-            }
-        }
-        
-        if (ground == null)
-            return false; // would take damage from falling
-        
-        return !unsafeGround.contains(ground.getType());
+    void reload() {
+        getConfiguration().load();
+        readConfig();
     }
 
 }

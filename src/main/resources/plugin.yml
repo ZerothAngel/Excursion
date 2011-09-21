@@ -4,15 +4,20 @@ description: A teleport plugin that remembers your previous location in the worl
 author: ZerothAngel
 main: org.tyrannyofheaven.bukkit.Excursion.ExcursionPlugin
 database: true
+
 commands:
   visit:
     description: Visit the specified world
-    permission: excursion.visit
-    usage: /<command> [world]
+  excursion:
+    description: Additional commands for Excursion
+
 permissions:
   excursion.visit:
     description: Allows use of the /visit command
     default: op
   excursion.access.*:
     description: Allows access to all worlds
+    default: op
+  excursion.reload:
+    description: Allows use of the /excursion reload command
     default: op

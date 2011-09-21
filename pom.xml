@@ -25,11 +25,16 @@
     </repository>
   </repositories>
   <dependencies>
-<dependency>
-    <groupId>org.bukkit</groupId>
-    <artifactId>bukkit</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-</dependency>
+    <dependency>
+      <groupId>org.bukkit</groupId>
+      <artifactId>bukkit</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.tyrannyofheaven.bukkit</groupId>
+      <artifactId>ToHUtils</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -64,6 +69,60 @@
           <target>1.6</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+	<version>1.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>org.tyrannyofheaven.bukkit:ToHUtils</include>
+                </includes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!--
+      <plugin>
+        <groupId>com.pyx4me</groupId>
+        <artifactId>proguard-maven-plugin</artifactId>
+	<version>2.0.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>proguard</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <options>
+	    <option>-renamesourcefileattribute SourceFile</option>
+	    <option>-keepattributes SourceFile,LineNumberTable</option>
+            <option>-keepattributes Signature,*Annotation*</option>
+	    <option>-keep @javax.persistence.Entity class * { *; }</option>
+            <option>-keepclassmembers class * { @org.tyrannyofheaven.bukkit.util.command.Command *; }</option>
+            <option>-keep public class * extends org.bukkit.plugin.java.JavaPlugin</option>
+          </options>
+          <libs>
+            <lib>${java.home}/../Classes/classes.jar</lib>
+          </libs>
+          <exclusions>
+            <exclusion>
+              <groupId>org.tyrannyofheaven.bukkit</groupId>
+              <artifactId>ToHUtils</artifactId>
+            </exclusion>
+          </exclusions>
+        </configuration>
+      </plugin>
+      -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
