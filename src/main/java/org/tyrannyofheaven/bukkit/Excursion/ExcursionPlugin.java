@@ -31,7 +31,6 @@ import java.util.logging.Level;
 import javax.persistence.PersistenceException;
 
 import org.bukkit.Material;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
@@ -149,9 +148,7 @@ public class ExcursionPlugin extends JavaPlugin {
         // Set up DAO
         dao = new AvajeExcursionDao(this);
 
-        CommandExecutor ce = new ToHCommandExecutor<ExcursionPlugin>(this, new ExcursionCommand(this));
-        getCommand("visit").setExecutor(ce);
-        getCommand("excursion").setExecutor(ce);
+        (new ToHCommandExecutor<ExcursionPlugin>(this, new ExcursionCommand(this))).registerCommands();
         
         // Cheap way to determine solid blocks.
         // However, relies on obfuscated function.
