@@ -1,8 +1,8 @@
 # Excursion &mdash; A teleport plugin for Bukkit #
 
-Excursion is yet another teleport plugin for Bukkit which remembers a player's previous location in each world.
+Excursion is a teleport plugin for Bukkit which remembers each player's previous location in each world.
 
-**NOTE:** This plugin currently only uses SuperPerms for permissions. (Known plugins that provide SuperPerms permissions are: PermissionsBukkit, bPermissions, PermissionsEx. Only tested with PermissionsBukkit, however.)
+**NOTE:** This plugin only uses Superperms (aka Bukkit permissions) for permissions.
 
 ## Features ##
 
@@ -24,18 +24,23 @@ Excursion is yet another teleport plugin for Bukkit which remembers a player's p
 
 Simply drop Excursion.jar in your Bukkit server's `plugins` directory. Start up your server. This will create an `Excursion` directory and default `config.yml` within the `plugins` directory. See that file for configuration details.
 
-**NOTE:** There's currently no reload command. You have to reload all plugins or restart your server. Sorry!
-
 ## Commands & Permissions ##
 
-This plugin only has one command:
+The basic command is:
 
-> `/visit [world]`
+> `/visit <world>`
+
+Where `<world>` is the name of a world or a group.
+
+> `/excursion reload`
+
+Re-reads config.yml.
 
 Permission nodes are:
 
 *   `excursion.visit` - Allows use of the `/visit` command.
-*   `excursion.visit.[world]` - Allows visiting `[world]`. You must use the name of the world directory in your server directory!
+*   `excursion.visit.<world>` - Allows visiting `<world>`. You must use the exact name of the world directory in your server directory!
 *   `excursion.visit.*` - Allows visiting all worlds.
+*   `excursion.reload` - Allows use of the `/excursion reload` command
 
 Operators have all permissions by default.

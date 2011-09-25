@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.persistence.PersistenceException;
 
@@ -38,6 +39,8 @@ import org.tyrannyofheaven.bukkit.util.ToHUtils;
 import org.tyrannyofheaven.bukkit.util.command.ToHCommandExecutor;
 
 public class ExcursionPlugin extends JavaPlugin {
+
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
     private final Map<String, String> aliasMap = new HashMap<String, String>();
 
@@ -166,6 +169,10 @@ public class ExcursionPlugin extends JavaPlugin {
         ToHUtils.log(this, Level.INFO, format, args);
     }
 
+    void debug(String format, Object... args) {
+        ToHUtils.log(this, Level.FINE, format, args);
+    }
+
     private void readConfig() {
         Configuration config = getConfiguration();
         config.load();
@@ -197,6 +204,11 @@ public class ExcursionPlugin extends JavaPlugin {
         // Blacklist
         blacklist.clear();
         blacklist.addAll(config.getStringList("blacklist", null));
+        
+        // Debug logging
+        logger.setLevel(null);
+        if (getConfiguration().getBoolean("debug", false))
+            logger.setLevel(Level.FINE);
     }
 
     void reload() {

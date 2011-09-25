@@ -42,3 +42,6 @@ groups:
 #blacklist:
 #- creative
 #- pvp
+
+# Enable debug logging.
+debug: false
