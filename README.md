@@ -39,8 +39,8 @@ Re-reads config.yml.
 Permission nodes are:
 
 *   `excursion.visit` - Allows use of the `/visit` command.
-*   `excursion.visit.<world>` - Allows visiting `<world>`. You must use the exact name of the world directory in your server directory!
-*   `excursion.visit.*` - Allows visiting all worlds.
+*   `excursion.access.<world>` - Allows visiting `<world>`. You must use the exact name of the world directory in your server directory!
+*   `excursion.access.*` - Allows visiting all worlds.
 *   `excursion.reload` - Allows use of the `/excursion reload` command
 
 Operators have all permissions by default.
