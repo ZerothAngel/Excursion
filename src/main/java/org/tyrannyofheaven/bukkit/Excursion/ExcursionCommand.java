@@ -15,8 +15,9 @@
  */
 package org.tyrannyofheaven.bukkit.Excursion;
 
-import static org.tyrannyofheaven.bukkit.util.ToHUtils.colorize;
-import static org.tyrannyofheaven.bukkit.util.ToHUtils.sendMessage;
+import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.debug;
+import static org.tyrannyofheaven.bukkit.util.ToHMessageUtils.colorize;
+import static org.tyrannyofheaven.bukkit.util.ToHMessageUtils.sendMessage;
 import static org.tyrannyofheaven.bukkit.util.permissions.PermissionUtils.requireOnePermission;
 
 import org.bukkit.Location;
@@ -73,7 +74,7 @@ public class ExcursionCommand {
 
         // Get current location
         Location currentLocation = player.getLocation();
-        plugin.debug("Player %s current location: %s", player.getName(), currentLocation);
+        debug(plugin, "Player %s current location: %s", player.getName(), currentLocation);
 
         // Resolve primary world for current world
         String currentWorld = currentLocation.getWorld().getName();
@@ -95,7 +96,7 @@ public class ExcursionCommand {
         if (!plugin.getBlacklist().contains(primaryWorld)) {
             // Load previous location, if any
             newLocation = plugin.getDao().loadLocation(player, primaryWorld);
-            plugin.debug("Player %s saved location: %s", player.getName(), newLocation);
+            debug(plugin, "Player %s saved location: %s", player.getName(), newLocation);
 
             // Check if destination is safe
             if (newLocation != null && !checkDestination(newLocation)) {
@@ -107,7 +108,7 @@ public class ExcursionCommand {
         if (newLocation == null) {
             // Player is visiting a new place, teleport to spawn
             newLocation = world.getSpawnLocation();
-            plugin.debug("Player %s location defaulted to spawn", player.getName());
+            debug(plugin, "Player %s location defaulted to spawn", player.getName());
         }
 
         // Go there!

@@ -15,7 +15,8 @@
  */
 package org.tyrannyofheaven.bukkit.Excursion;
 
-import static org.tyrannyofheaven.bukkit.util.ToHUtils.copyResourceToFile;
+import static org.tyrannyofheaven.bukkit.util.ToHFileUtils.copyResourceToFile;
+import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,7 +36,6 @@ import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
-import org.tyrannyofheaven.bukkit.util.ToHUtils;
 import org.tyrannyofheaven.bukkit.util.command.ToHCommandExecutor;
 
 public class ExcursionPlugin extends JavaPlugin {
@@ -111,12 +111,12 @@ public class ExcursionPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        log("%s disabled.", getDescription().getVersion());
+        log(this, "%s disabled.", getDescription().getVersion());
     }
 
     @Override
     public void onEnable() {
-        log("%s enabled.", getDescription().getVersion());
+        log(this, "%s enabled.", getDescription().getVersion());
         
         // Create data folder if it doesn't exist
         if (!getDataFolder().exists())
@@ -141,12 +141,12 @@ public class ExcursionPlugin extends JavaPlugin {
             rows = getDatabase().createQuery(SavedLocation.class).findRowCount();
         }
         catch (PersistenceException e) {
-            log("Creating SQL tables...");
+            log(this, "Creating SQL tables...");
             installDDL();
-            log("Done.");
+            log(this, "Done.");
         }
 
-        log("Database contains %d saved location%s.", rows, rows == 1 ? "" : "s");
+        log(this, "Database contains %d saved location%s.", rows, rows == 1 ? "" : "s");
 
         // Set up DAO
         dao = new AvajeExcursionDao(this);
@@ -163,14 +163,6 @@ public class ExcursionPlugin extends JavaPlugin {
 //                solids.add("Material." + m);
 //        }
 //        log("solids = %s", solids);
-    }
-
-    void log(String format, Object... args) {
-        ToHUtils.log(this, Level.INFO, format, args);
-    }
-
-    void debug(String format, Object... args) {
-        ToHUtils.log(this, Level.FINE, format, args);
     }
 
     private void readConfig() {

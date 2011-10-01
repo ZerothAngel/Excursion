@@ -15,8 +15,8 @@
  */
 package org.tyrannyofheaven.bukkit.Excursion;
 
-import static org.tyrannyofheaven.bukkit.util.ToHUtils.colorize;
-import static org.tyrannyofheaven.bukkit.util.ToHUtils.sendMessage;
+import static org.tyrannyofheaven.bukkit.util.ToHMessageUtils.colorize;
+import static org.tyrannyofheaven.bukkit.util.ToHMessageUtils.sendMessage;
 
 import org.bukkit.command.CommandSender;
 import org.tyrannyofheaven.bukkit.util.command.Command;
