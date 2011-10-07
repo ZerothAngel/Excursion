@@ -1,6 +1,0 @@
-DONE World blacklist. Don't save locations for a blacklisted world, always
-  teleport to spawn point.
-DONE World aliases? e.g. survival -> world
-DONE World groups? e.g. world, world_nether = one location
-Player/location cleanup. As players leave (never to return), database will fill
-  up with stale locations.

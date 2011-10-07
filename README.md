@@ -12,9 +12,12 @@ Excursion is a teleport plugin for Bukkit which remembers each player's previous
 
 *   Worlds can be grouped! When a player leaves a grouped world, in addition to the player's location, the player's world is also saved. When the player revisits that group, they are teleported to the exact world and location they left from.
 
-    To make things clearer, suppose there are 3 worlds: WorldA, WorldB, and WorldC. They are put in a group with WorldA as the "primary world." When a player visits this group for the first time (by using `/visit` on any of the member worlds), the player will teleport to WorldA's spawn point.
+    To make things clearer, suppose there are 2 worlds: WorldA, WorldB, and
+WorldC. WorldA and WorldB are put in a group with WorldA as the "primary world."
+When a player visits this group for the first time (by using `/visit` on either
+WorldA or WorldB), the player will teleport to WorldA's spawn point.
 
-    Let's now say the player is in WorldB and visits some other world (that's not in the group). When the player returns to the group, they will teleport back to their saved location in WorldB.
+    Let's now say the player is in WorldB and visits WorldC. When the player returns to the group, they will teleport back to their saved location in WorldB.
 
     **NOTE:** Due to the nature of grouping, some other method must be used to allow players to move between worlds of a group &mdash; for example, nether gates and portals.
 
@@ -44,3 +47,18 @@ Permission nodes are:
 *   `excursion.reload` - Allows use of the `/excursion reload` command
 
 Operators have all permissions by default.
+
+## License & Source ##
+
+Excursion is released under the
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+Sources may be found on GitHub:
+
+*   [Excursion](https://github.com/ZerothAngel/Excursion)
+*   [ToHPluginUtils](https://github.com/ZerothAngel/ToHPluginUtils)
+
+## To Do ##
+
+*   Automated or manual cleanup of stale saved locations.
+*   Perhaps simple import/export to allow for easier database schema upgrades.
