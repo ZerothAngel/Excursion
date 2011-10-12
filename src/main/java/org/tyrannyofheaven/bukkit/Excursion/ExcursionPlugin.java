@@ -15,10 +15,8 @@
  */
 package org.tyrannyofheaven.bukkit.Excursion;
 
-import static org.tyrannyofheaven.bukkit.util.ToHFileUtils.copyResourceToFile;
 import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.log;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,9 +31,10 @@ import java.util.logging.Logger;
 import javax.persistence.PersistenceException;
 
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
+import org.tyrannyofheaven.bukkit.util.ToHFileUtils;
 import org.tyrannyofheaven.bukkit.util.command.ToHCommandExecutor;
 
 public class ExcursionPlugin extends JavaPlugin {
@@ -47,6 +46,8 @@ public class ExcursionPlugin extends JavaPlugin {
     private final Map<String, String> groupMap = new HashMap<String, String>();
     
     private final Set<String> blacklist = new HashSet<String>();
+
+    private FileConfiguration config;
 
     private ExcursionDao dao;
 
@@ -116,22 +117,13 @@ public class ExcursionPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        log(this, "%s enabled.", getDescription().getVersion());
-        
-        // Create data folder if it doesn't exist
-        if (!getDataFolder().exists())
-            getDataFolder().mkdirs();
-
-        // Create config file, if needed
-        File configFile = new File(getDataFolder(), "config.yml");
-        if (!configFile.exists()) {
-            copyResourceToFile(this, "config.yml", configFile);
-            // Re-load config
-            getConfiguration().load();
-        }
-
         // Read config
+        config = ToHFileUtils.getConfig(this);
         readConfig();
+
+        // Save config
+        config.options().copyDefaults(true);
+        ToHFileUtils.saveConfig(this, config);
 
         int rows = 0;
         
@@ -163,48 +155,49 @@ public class ExcursionPlugin extends JavaPlugin {
 //                solids.add("Material." + m);
 //        }
 //        log("solids = %s", solids);
+
+        log(this, "%s enabled.", getDescription().getVersion());
     }
 
     private void readConfig() {
-        Configuration config = getConfiguration();
-        config.load();
-        
         // Aliases
         aliasMap.clear();
-        ConfigurationNode aliasNode = config.getNode("aliases");
+        ConfigurationSection aliasNode = config.getConfigurationSection("aliases");
         if (aliasNode != null) {
-            for (String key : aliasNode.getKeys()) {
+            for (String key : aliasNode.getKeys(false)) {
                 // keyed by world name
-                List<String> aliases = aliasNode.getStringList(key, null);
-                for (String alias : aliases)
-                    aliasMap.put(alias, key);
+                List<?> aliases = aliasNode.getList(key, Collections.emptyList());
+                for (Object alias : aliases) {
+                    aliasMap.put(alias.toString(), key);
+                }
             }
         }
         
         // Groups
         groupMap.clear();
-        ConfigurationNode groupNode = config.getNode("groups");
+        ConfigurationSection groupNode = config.getConfigurationSection("groups");
         if (groupNode != null) {
-            for (String key : groupNode.getKeys()) {
+            for (String key : groupNode.getKeys(false)) {
                 // keyed by name of primary world
-                List<String> members = groupNode.getStringList(key, null);
-                for (String member : members)
-                    groupMap.put(member, key);
+                List<?> members = groupNode.getList(key, Collections.emptyList());
+                for (Object member : members)
+                    groupMap.put(member.toString(), key);
             }
         }
 
         // Blacklist
         blacklist.clear();
-        blacklist.addAll(config.getStringList("blacklist", null));
+        for (Object entry : config.getList("blacklist", Collections.emptyList()))
+            blacklist.add(entry.toString());
         
         // Debug logging
         logger.setLevel(null);
-        if (getConfiguration().getBoolean("debug", false))
+        if (config.getBoolean("debug", false))
             logger.setLevel(Level.FINE);
     }
 
     void reload() {
-        getConfiguration().load();
+        config = ToHFileUtils.getConfig(this);
         readConfig();
     }
 

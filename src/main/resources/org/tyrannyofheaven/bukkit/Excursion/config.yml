@@ -1,47 +1,13 @@
-# World aliases. Each key should be a canonical world name (e.g. the name of
-# the world's directory). The associated value is a list containing one or more
-# aliases. Note that if the world is the primary world of a group (see below),
-# the aliases will also apply to the group.
-
 aliases:
   world:
   - survival
-
-# World groups. A world group treats all members as a single location for the
-# /visit command. For example, if "world" and "world_nether" are in the same
-# group like so:
-#
-#   groups:
-#     world:
-#     - world_nether
-#
-# Then if you are in world_nether and /visit out to a different world, when you
-# "/visit world" or "/visit world_nether", you will return to world_nether.
-#
-# All world names should be the canonical name of that world. Each key is
-# the group's "primary world," which is the world where players who have
-# never visited the group will spawn. The associated value should be a list
-# of one or more member worlds.
-#
-# Note that there is no way to directly visit any of the worlds in a group
-# using this plugin. Players will either teleport to their previous location
-# in that group of worlds or in the primary world's spawn point. Use of portals
-# or nether portals to move between worlds in a group is assumed.
 
 groups:
   world:
   - world_nether
 
-# Blacklist. When /visit'ing out of a blacklisted world, previous locations are
-# not saved. When /visit'ing to a blacklisted world, players will always
-# teleport to the world's (or group's primary world's) spawn point.
-#
-# Note that this blacklist does NOT determine world access. Use the
-# excursion.access.<world> permissions for that.
+blacklist:
+- creative
+- pvp
 
-#blacklist:
-#- creative
-#- pvp
-
-# Enable debug logging.
 debug: false
