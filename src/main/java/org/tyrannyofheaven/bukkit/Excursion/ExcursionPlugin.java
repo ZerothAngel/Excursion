@@ -39,8 +39,6 @@ import org.tyrannyofheaven.bukkit.util.command.ToHCommandExecutor;
 
 public class ExcursionPlugin extends JavaPlugin {
 
-    private static final int CURRENT_CONFIG_VERSION = 1;
-
     private final Logger logger = Logger.getLogger(getClass().getName());
 
     private final Map<String, String> aliasMap = new HashMap<String, String>();
@@ -124,7 +122,7 @@ public class ExcursionPlugin extends JavaPlugin {
         readConfig();
 
         // Upgrade/save config
-        ToHFileUtils.upgradeConfig(this, config, CURRENT_CONFIG_VERSION);
+        ToHFileUtils.upgradeConfig(this, config);
 
         int rows = 0;
         
