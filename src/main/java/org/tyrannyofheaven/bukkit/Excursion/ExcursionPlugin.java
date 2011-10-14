@@ -119,6 +119,7 @@ public class ExcursionPlugin extends JavaPlugin {
     public void onEnable() {
         // Read config
         config = ToHFileUtils.getConfig(this);
+        config.options().header(null);
         readConfig();
 
         // Upgrade/save config
