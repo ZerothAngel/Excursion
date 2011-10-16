@@ -23,6 +23,10 @@ WorldA or WorldB), the player will teleport to WorldA's spawn point.
 
 *   Worlds (and groups) can have aliases.
 
+*   A delay may be configured per world (or group). When a player leaves that
+    world with the `/visit` command, they will be forced to wait the configured
+    number of seconds before actually being teleported away.
+
 ## Installation & Configuration ##
 
 Simply drop Excursion.jar in your Bukkit server's `plugins` directory. Start up your server. This will create an `Excursion` directory and default `config.yml` within the `plugins` directory. See that file for configuration details.
