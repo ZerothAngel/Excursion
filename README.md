@@ -66,3 +66,5 @@ Sources may be found on GitHub:
 
 *   Automated or manual cleanup of stale saved locations.
 *   Perhaps simple import/export to allow for easier database schema upgrades.
+*   Perhaps an option to cancel delayed teleport when the player gives or
+    receives damage.
