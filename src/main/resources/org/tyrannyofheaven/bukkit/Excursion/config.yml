@@ -8,6 +8,9 @@ groups:
   world:
   - world_nether
 
+delays:
+  pvp: 30
+
 blacklist:
 - creative
 - pvp

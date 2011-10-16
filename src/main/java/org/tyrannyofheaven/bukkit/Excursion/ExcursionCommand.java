@@ -16,15 +16,15 @@
 package org.tyrannyofheaven.bukkit.Excursion;
 
 import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.debug;
+import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.error;
 import static org.tyrannyofheaven.bukkit.util.ToHMessageUtils.colorize;
 import static org.tyrannyofheaven.bukkit.util.ToHMessageUtils.sendMessage;
 import static org.tyrannyofheaven.bukkit.util.permissions.PermissionUtils.requireOnePermission;
 
-import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.tyrannyofheaven.bukkit.util.ToHUtils;
 import org.tyrannyofheaven.bukkit.util.command.Command;
 import org.tyrannyofheaven.bukkit.util.command.HelpBuilder;
 import org.tyrannyofheaven.bukkit.util.command.Option;
@@ -36,9 +36,12 @@ public class ExcursionCommand {
     
     private final SubCommand subCommand;
 
+    private final TeleportHelper teleportHelper;
+
     ExcursionCommand(ExcursionPlugin plugin) {
         this.plugin = plugin;
         subCommand = new SubCommand(plugin);
+        teleportHelper = new TeleportHelper(plugin);
     }
 
     @Command(value="visit", description="Visit the specified world")
@@ -57,89 +60,50 @@ public class ExcursionCommand {
             group = alias;
 
         // Group members map to their primary world
-        String primaryWorld = plugin.getGroupMap().get(group);
-        if (primaryWorld == null)
-            primaryWorld = group; // not in a group or is a primary world
+        String destPrimaryWorldName = plugin.getGroupMap().get(group);
+        if (destPrimaryWorldName == null)
+            destPrimaryWorldName = group; // not in a group or is a primary world
             
         // Check if world exists
-        World world = plugin.getServer().getWorld(primaryWorld);
-        if (world == null) {
+        World destPrimaryWorld = plugin.getServer().getWorld(destPrimaryWorldName);
+        if (destPrimaryWorld == null) {
             sendMessage(player, colorize("{RED}Invalid world."));
             return;
         }
 
         // Check world access
         // (group access based on primary world)
-        requireOnePermission(player, "excursion.access.*", String.format("excursion.access.%s", primaryWorld));
+        requireOnePermission(player, "excursion.access.*", String.format("excursion.access.%s", destPrimaryWorldName));
 
-        // Get current location
-        Location currentLocation = player.getLocation();
-        debug(plugin, "Player %s current location: %s", player.getName(), currentLocation);
+        CurrentLocation cl = teleportHelper.validateCurrentLocation(player, destPrimaryWorldName);
+        if (cl == null) return;
 
-        // Resolve primary world for current world
-        String currentWorld = currentLocation.getWorld().getName();
-        String currentPrimaryWorld = plugin.getGroupMap().get(currentWorld);
-        if (currentPrimaryWorld == null)
-            currentPrimaryWorld = currentWorld;
-
-        if (currentPrimaryWorld.equals(primaryWorld)) {
-            sendMessage(player, colorize("{RED}You are already there."));
-            return;
+        // Clear any previously-scheduled teleport task for this player
+        int taskId = plugin.clearTeleportTaskId(player.getName());
+        if (taskId != -1) {
+            debug(plugin, "Clearing previous teleport task for %s (%d)", player.getName(), taskId);
+            plugin.getServer().getScheduler().cancelTask(taskId);
         }
 
-        // Save location
-        if (!plugin.getBlacklist().contains(currentPrimaryWorld))
-            plugin.getDao().saveLocation(player, currentPrimaryWorld, currentLocation);
-
-        // Get destination location
-        Location newLocation = null;
-        if (!plugin.getBlacklist().contains(primaryWorld)) {
-            // Load previous location, if any
-            newLocation = plugin.getDao().loadLocation(player, primaryWorld);
-            debug(plugin, "Player %s saved location: %s", player.getName(), newLocation);
-
-            // Check if destination is safe
-            if (newLocation != null && !checkDestination(newLocation)) {
-                sendMessage(player, colorize("{YELLOW}Destination is unsafe; teleporting to spawn."));
-                // NB: If this is a group, the player goes to the primary world's spawn
-                newLocation = null;
+        if (cl.getDelay() < 1) {
+            // Teleport immediately
+            teleportHelper.teleport(player, destPrimaryWorldName, destPrimaryWorld, cl);
+        }
+        else {
+            // Set up delayed teleport
+            taskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new TeleportTask(plugin, teleportHelper, player.getName(), destPrimaryWorldName), cl.getDelay() * ToHUtils.TICKS_PER_SECOND);
+            if (taskId == -1) {
+                error(plugin, "Failed to schedule teleport");
+                sendMessage(player, colorize("{RED}Server error; failed to schedule teleport"));
+                return;
             }
-        }
-        if (newLocation == null) {
-            // Player is visiting a new place, teleport to spawn
-            newLocation = world.getSpawnLocation();
-            debug(plugin, "Player %s location defaulted to spawn", player.getName());
-        }
 
-        // Go there!
-        player.teleport(newLocation);
-    }
+            // Save task ID
+            plugin.setTeleportTaskId(player, taskId);
 
-    private boolean isSolidBlock(Block block) {
-        return ExcursionPlugin.solidBlocks.contains(block.getType());
-    }
-
-    private boolean checkDestination(Location location) {
-        Block legs = location.getBlock();
-        Block head = legs.getRelative(0, 1, 0);
-        
-        if (isSolidBlock(legs) || isSolidBlock(head))
-            return false; // space is occupied
-        
-        final int MAX_HEIGHT = -4; // maximum number of air blocks to allow between legs and ground (relative to legs, so negative)
-        Block ground = null;
-        for (int i = 0; i >= MAX_HEIGHT; i--) { // NB: start at zero to allow for non-air, transparent blocks
-            Block check = legs.getRelative(0, i, 0);
-            if (!check.isEmpty()) {
-                ground = check;
-                break;
-            }
+            debug(plugin, "Scheduled teleport task for %s (%d)", player.getName(), taskId);
+            sendMessage(player, colorize("{GRAY}(You will teleport in %d second%s)"), cl.getDelay(), cl.getDelay() == 1 ? "" : "s");
         }
-        
-        if (ground == null)
-            return false; // would take damage from falling
-        
-        return !ExcursionPlugin.unsafeGround.contains(ground.getType());
     }
 
     @Command("excursion")

@@ -33,6 +33,7 @@ import javax.persistence.PersistenceException;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.tyrannyofheaven.bukkit.util.ToHFileUtils;
 import org.tyrannyofheaven.bukkit.util.command.ToHCommandExecutor;
@@ -41,10 +42,14 @@ public class ExcursionPlugin extends JavaPlugin {
 
     private final Logger logger = Logger.getLogger(getClass().getName());
 
+    private final Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
+
     private final Map<String, String> aliasMap = new HashMap<String, String>();
 
     private final Map<String, String> groupMap = new HashMap<String, String>();
-    
+
+    private final Map<String, Integer> delayMap = new HashMap<String, Integer>();
+
     private final Set<String> blacklist = new HashSet<String>();
 
     private FileConfiguration config;
@@ -98,6 +103,10 @@ public class ExcursionPlugin extends JavaPlugin {
         return groupMap;
     }
 
+    Map<String, Integer> getDelayMap() {
+        return delayMap;
+    }
+
     Set<String> getBlacklist() {
         return blacklist;
     }
@@ -112,6 +121,12 @@ public class ExcursionPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Cancel any pending teleports and clear state
+        getServer().getScheduler().cancelTasks(this);
+        synchronized (playerStates) {
+            playerStates.clear();
+        }
+
         log(this, "%s disabled.", getDescription().getVersion());
     }
 
@@ -145,6 +160,8 @@ public class ExcursionPlugin extends JavaPlugin {
 
         (new ToHCommandExecutor<ExcursionPlugin>(this, new ExcursionCommand(this))).registerCommands();
         
+        (new ExcursionPlayerListener(this)).registerEvents();
+
         // Cheap way to determine solid blocks.
         // However, relies on obfuscated function.
         // Subvert to build our solid block list for now.
@@ -185,20 +202,79 @@ public class ExcursionPlugin extends JavaPlugin {
             }
         }
 
+        // Delays
+        delayMap.clear();
+        ConfigurationSection delayNode = config.getConfigurationSection("delays");
+        if (delayNode != null) {
+            for (String key : delayNode.getKeys(false)) {
+                // keyed by name of primary world
+                delayMap.put(key, delayNode.getInt(key, 0));
+            }
+        }
+
         // Blacklist
         blacklist.clear();
-        for (Object entry : config.getList("blacklist", Collections.emptyList()))
+        for (Object entry : config.getList("blacklist", Collections.emptyList())) {
             blacklist.add(entry.toString());
+        }
         
         // Debug logging
-        logger.setLevel(null);
-        if (config.getBoolean("debug", false))
-            logger.setLevel(Level.FINE);
+        logger.setLevel(config.getBoolean("debug", false) ? Level.FINE : null);
     }
 
     void reload() {
         config = ToHFileUtils.getConfig(this);
         readConfig();
+    }
+
+    private PlayerState getPlayerState(String playerName, boolean create) {
+        PlayerState ps;
+        synchronized (playerStates) {
+            ps = playerStates.get(playerName);
+            if (ps == null && create) {
+                ps = new PlayerState();
+                playerStates.put(playerName, ps);
+            }
+        }
+        return ps;
+    }
+
+    private void removePlayerState(String playerName) {
+        synchronized (playerStates) {
+            playerStates.remove(playerName);
+        }
+    }
+
+    void setTeleportTaskId(Player player, int taskId) {
+        PlayerState ps = getPlayerState(player.getName(), true);
+        // Just in case... cancel previous teleport task
+        if (ps.getTaskId() != -1)
+            getServer().getScheduler().cancelTask(ps.getTaskId());
+        ps.setTaskId(taskId);
+    }
+
+    // NB: Does NOT cancel teleport task
+    int clearTeleportTaskId(String playerName) {
+        PlayerState ps = getPlayerState(playerName, false);
+        if (ps != null) {
+            removePlayerState(playerName);
+            return ps.getTaskId();
+        }
+        return -1;
+    }
+
+    private static class PlayerState {
+
+        private int taskId = -1;
+
+        public int getTaskId() {
+            return taskId;
+        }
+
+        public void setTaskId(int taskId) {
+            this.taskId = taskId;
+        }
+
     }
 
 }

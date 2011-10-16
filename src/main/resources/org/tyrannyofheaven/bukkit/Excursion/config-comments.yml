@@ -26,6 +26,10 @@ groups: |
   in that group of worlds or in the primary world's spawn point. Use of portals
   or nether portals to move between worlds in a group is assumed.
 
+delays: |
+  Per-world delays, in seconds. Omit a world/group or set its delay to 0 to
+  allow players to teleport away from that world immediately.
+
 blacklist: |
   Blacklist. When /visit'ing out of a blacklisted world, previous locations are
   not saved. When /visit'ing to a blacklisted world, players will always
