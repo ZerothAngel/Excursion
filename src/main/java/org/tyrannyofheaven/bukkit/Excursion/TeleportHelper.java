@@ -55,12 +55,10 @@ public class TeleportHelper {
             return null;
         }
 
-        // Determine delay, if any
-        Integer delay = plugin.getDelayMap().get(currentPrimaryWorldName);
-        if (delay == null)
-            delay = 0;
+        // Grab options
+        GroupOptions options = plugin.getGroupOptions(destPrimaryWorldName);
 
-        return new CurrentLocation(currentPrimaryWorldName, currentLocation, delay);
+        return new CurrentLocation(currentPrimaryWorldName, currentLocation, options.getDelay());
     }
 
     public void teleport(Player player, String destPrimaryWorldName, World destPrimaryWorld, CurrentLocation cl) {

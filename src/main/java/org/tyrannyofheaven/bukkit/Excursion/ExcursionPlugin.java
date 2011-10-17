@@ -48,7 +48,9 @@ public class ExcursionPlugin extends JavaPlugin {
 
     private final Map<String, String> groupMap = new HashMap<String, String>();
 
-    private final Map<String, Integer> delayMap = new HashMap<String, Integer>();
+    private final Map<String, GroupOptions> optionsMap = new HashMap<String, GroupOptions>();
+
+    private final GroupOptions DEFAULT_GROUP_OPTIONS = new GroupOptions();
 
     private final Set<String> blacklist = new HashSet<String>();
 
@@ -103,8 +105,9 @@ public class ExcursionPlugin extends JavaPlugin {
         return groupMap;
     }
 
-    Map<String, Integer> getDelayMap() {
-        return delayMap;
+    GroupOptions getGroupOptions(String group) {
+        GroupOptions options = optionsMap.get(group);
+        return options == null ? DEFAULT_GROUP_OPTIONS : options;
     }
 
     Set<String> getBlacklist() {
@@ -202,13 +205,15 @@ public class ExcursionPlugin extends JavaPlugin {
             }
         }
 
-        // Delays
-        delayMap.clear();
+        optionsMap.clear();
+
+        // Delays TODO backwards compatibility, remove in future
         ConfigurationSection delayNode = config.getConfigurationSection("delays");
         if (delayNode != null) {
             for (String key : delayNode.getKeys(false)) {
                 // keyed by name of primary world
-                delayMap.put(key, delayNode.getInt(key, 0));
+                GroupOptions options = getGroupOptions(key, true);
+                options.setDelay(delayNode.getInt(key, 0));
             }
         }
 
@@ -220,6 +225,15 @@ public class ExcursionPlugin extends JavaPlugin {
         
         // Debug logging
         logger.setLevel(config.getBoolean("debug", false) ? Level.FINE : null);
+    }
+
+    private GroupOptions getGroupOptions(String group, boolean create) {
+        GroupOptions options = optionsMap.get(group);
+        if (options == null && create) {
+            options = new GroupOptions();
+            optionsMap.put(group, options);
+        }
+        return options;
     }
 
     void reload() {
