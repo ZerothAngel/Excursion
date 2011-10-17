@@ -15,6 +15,7 @@
  */
 package org.tyrannyofheaven.bukkit.Excursion;
 
+import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.debug;
 import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.log;
 
 import java.util.ArrayList;
@@ -164,6 +165,7 @@ public class ExcursionPlugin extends JavaPlugin {
         (new ToHCommandExecutor<ExcursionPlugin>(this, new ExcursionCommand(this))).registerCommands();
         
         (new ExcursionPlayerListener(this)).registerEvents();
+        (new ExcursionEntityListener(this)).registerEvents();
 
         // Cheap way to determine solid blocks.
         // However, relies on obfuscated function.
@@ -217,6 +219,21 @@ public class ExcursionPlugin extends JavaPlugin {
             }
         }
 
+        // Options
+        ConfigurationSection optionsNode = config.getConfigurationSection("options");
+        if (optionsNode != null) {
+            for (Map.Entry<String, Object> entry : optionsNode.getValues(false).entrySet()) {
+                if (entry.getValue() instanceof ConfigurationSection) {
+                    GroupOptions options = getGroupOptions(entry.getKey(), true);
+                    ConfigurationSection groupOptions = (ConfigurationSection)entry.getValue();
+                    
+                    options.setDelay(groupOptions.getInt("delay", options.getDelay()));
+                    options.setCancelOnAttack(groupOptions.getBoolean("attack-cancel", options.isCancelOnAttack()));
+                    options.setCancelOnDamage(groupOptions.getBoolean("damage-cancel", options.isCancelOnDamage()));
+                }
+            }
+        }
+
         // Blacklist
         blacklist.clear();
         for (Object entry : config.getList("blacklist", Collections.emptyList())) {
@@ -253,9 +270,9 @@ public class ExcursionPlugin extends JavaPlugin {
         return ps;
     }
 
-    private void removePlayerState(String playerName) {
+    private PlayerState removePlayerState(String playerName) {
         synchronized (playerStates) {
-            playerStates.remove(playerName);
+            return playerStates.remove(playerName);
         }
     }
 
@@ -269,12 +286,23 @@ public class ExcursionPlugin extends JavaPlugin {
 
     // NB: Does NOT cancel teleport task
     int clearTeleportTaskId(String playerName) {
-        PlayerState ps = getPlayerState(playerName, false);
-        if (ps != null) {
-            removePlayerState(playerName);
-            return ps.getTaskId();
+        PlayerState ps = removePlayerState(playerName);
+        return ps == null ? -1 : ps.getTaskId();
+    }
+
+    boolean cancelTeleportTask(String playerName) {
+        int taskId = clearTeleportTaskId(playerName);
+        if (taskId != -1) {
+            debug(this, "Clearing teleport task for %s (%d)", playerName, taskId);
+            getServer().getScheduler().cancelTask(taskId);
+            return true;
         }
-        return -1;
+        return false;
+    }
+
+    String resolvePrimaryWorld(String worldName) {
+        String primaryWorldName = getGroupMap().get(worldName);
+        return primaryWorldName == null ? worldName : primaryWorldName;
     }
 
     private static class PlayerState {

@@ -27,8 +27,27 @@ groups: |
   or nether portals to move between worlds in a group is assumed.
 
 delays: |
+  !!! DEPRECATED !!! Will disappear in next version, use options instead.
   Per-world delays, in seconds. Omit a world/group or set its delay to 0 to
   allow players to teleport away from that world immediately.
+
+options: |
+  Per-world options. Each world (or group) may have a number of options
+  configured. For example:
+  
+    options:
+      survival:
+        delay: 30
+        attack-cancel: true
+        damage-cancel: true
+  
+  Available options:
+    delay - Number of seconds to delay teleport. Set to 0 to allow immediate
+            teleport. Defaults to 0.
+    attack-cancel - Set to true if delayed teleports should be cancelled when
+                    the player attacks something (melee, bow). Defaults to false.
+    damage-cancel - Set to true if delayed teleports should be cancelled when
+                    the player takes any damage. Defaults to false.
 
 blacklist: |
   Blacklist. When /visit'ing out of a blacklisted world, previous locations are

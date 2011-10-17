@@ -1,6 +1,5 @@
 package org.tyrannyofheaven.bukkit.Excursion;
 
-import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.debug;
 import static org.tyrannyofheaven.bukkit.util.ToHMessageUtils.colorize;
 import static org.tyrannyofheaven.bukkit.util.ToHMessageUtils.sendMessage;
 import static org.tyrannyofheaven.bukkit.util.ToHUtils.registerEvent;
@@ -25,19 +24,12 @@ public class ExcursionPlayerListener extends PlayerListener {
 
     @Override
     public void onPlayerQuit(PlayerQuitEvent event) {
-        int taskId = plugin.clearTeleportTaskId(event.getPlayer().getName());
-        if (taskId != -1) {
-            debug(plugin, "Clearing teleport task for %s (%d)", event.getPlayer().getName(), taskId);
-            plugin.getServer().getScheduler().cancelTask(taskId);
-        }
+        plugin.cancelTeleportTask(event.getPlayer().getName());
     }
 
     @Override
     public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
-        int taskId = plugin.clearTeleportTaskId(event.getPlayer().getName());
-        if (taskId != -1) {
-            debug(plugin, "Clearing teleport task for %s (%d)", event.getPlayer().getName(), taskId);
-            plugin.getServer().getScheduler().cancelTask(taskId);
+        if (plugin.cancelTeleportTask(event.getPlayer().getName())) {
             sendMessage(event.getPlayer(), colorize("{GRAY}(Teleport cancelled due to world change)"));
         }
     }

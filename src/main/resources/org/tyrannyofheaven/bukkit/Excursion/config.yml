@@ -1,4 +1,4 @@
-config-version: 1
+config-version: 2
 
 aliases:
   world:
@@ -10,6 +10,12 @@ groups:
 
 delays:
   pvp: 30
+
+options:
+  pvp:
+    delay: 30
+    attack-cancel: true
+    damage-cancel: true
 
 blacklist:
 - creative

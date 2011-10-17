@@ -93,8 +93,8 @@ public class ExcursionCommand {
             // Set up delayed teleport
             taskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new TeleportTask(plugin, teleportHelper, player.getName(), destPrimaryWorldName), cl.getDelay() * ToHUtils.TICKS_PER_SECOND);
             if (taskId == -1) {
-                error(plugin, "Failed to schedule teleport");
-                sendMessage(player, colorize("{RED}Server error; failed to schedule teleport"));
+                error(plugin, "Failed to schedule teleport!");
+                sendMessage(player, colorize("{RED}Server error; failed to schedule teleport."));
                 return;
             }
 

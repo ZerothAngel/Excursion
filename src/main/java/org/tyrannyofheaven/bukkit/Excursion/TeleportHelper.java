@@ -44,10 +44,7 @@ public class TeleportHelper {
         debug(plugin, "Player %s current location: %s", player.getName(), currentLocation);
 
         // Resolve primary world for current world
-        String currentWorldName = currentLocation.getWorld().getName();
-        String currentPrimaryWorldName = plugin.getGroupMap().get(currentWorldName);
-        if (currentPrimaryWorldName == null)
-            currentPrimaryWorldName = currentWorldName;
+        String currentPrimaryWorldName = plugin.resolvePrimaryWorld(currentLocation.getWorld().getName());
 
         // Don't allow teleporting to the same world/group
         if (currentPrimaryWorldName.equals(destPrimaryWorldName)) {
@@ -56,7 +53,7 @@ public class TeleportHelper {
         }
 
         // Grab options
-        GroupOptions options = plugin.getGroupOptions(destPrimaryWorldName);
+        GroupOptions options = plugin.getGroupOptions(currentPrimaryWorldName);
 
         return new CurrentLocation(currentPrimaryWorldName, currentLocation, options.getDelay());
     }
