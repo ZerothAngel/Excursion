@@ -37,11 +37,15 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.tyrannyofheaven.bukkit.util.ToHFileUtils;
+import org.tyrannyofheaven.bukkit.util.ToHUtils;
+import org.tyrannyofheaven.bukkit.util.VersionInfo;
 import org.tyrannyofheaven.bukkit.util.command.ToHCommandExecutor;
 
 public class ExcursionPlugin extends JavaPlugin {
 
     private final Logger logger = Logger.getLogger(getClass().getName());
+
+    private VersionInfo versionInfo;
 
     private final Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
 
@@ -116,6 +120,11 @@ public class ExcursionPlugin extends JavaPlugin {
     }
 
     @Override
+    public void onLoad() {
+        versionInfo = ToHUtils.getVersion(this);
+    }
+
+    @Override
     public List<Class<?>> getDatabaseClasses() {
         List<Class<?>> result = new ArrayList<Class<?>>();
         result.add(SavedLocationId.class);
@@ -131,7 +140,7 @@ public class ExcursionPlugin extends JavaPlugin {
             playerStates.clear();
         }
 
-        log(this, "%s disabled.", getDescription().getVersion());
+        log(this, "%s disabled.", versionInfo.getVersionString());
     }
 
     @Override
@@ -178,7 +187,7 @@ public class ExcursionPlugin extends JavaPlugin {
 //        }
 //        log("solids = %s", solids);
 
-        log(this, "%s enabled.", getDescription().getVersion());
+        log(this, "%s enabled.", versionInfo.getVersionString());
     }
 
     private void readConfig() {
