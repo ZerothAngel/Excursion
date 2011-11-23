@@ -89,7 +89,8 @@ public class ExcursionPlugin extends JavaPlugin {
                 Material.JACK_O_LANTERN, Material.LOCKED_CHEST,
                 Material.MONSTER_EGGS, Material.SMOOTH_BRICK,
                 Material.HUGE_MUSHROOM_1, Material.HUGE_MUSHROOM_2,
-                Material.MELON_BLOCK };
+                Material.MELON_BLOCK, Material.MYCEL, Material.NETHER_BRICK,
+                Material.ENDER_STONE };
         solidBlocks = Collections.unmodifiableSet(new HashSet<Material>(Arrays.asList(solids)));
 
         // Unsafe ground
@@ -185,7 +186,7 @@ public class ExcursionPlugin extends JavaPlugin {
 //            if (m.getId() != 0 && net.minecraft.server.Block.byId[m.getId()].a())
 //                solids.add("Material." + m);
 //        }
-//        log("solids = %s", solids);
+//        log(this, "solids = %s", solids);
 
         log(this, "%s enabled.", versionInfo.getVersionString());
     }
