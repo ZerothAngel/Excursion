@@ -26,11 +26,6 @@ groups: |
   in that group of worlds or in the primary world's spawn point. Use of portals
   or nether portals to move between worlds in a group is assumed.
 
-delays: |
-  !!! DEPRECATED !!! Will disappear in next version, use options instead.
-  Per-world delays, in seconds. Omit a world/group or set its delay to 0 to
-  allow players to teleport away from that world immediately.
-
 options: |
   Per-world options. Each world (or group) may have a number of options
   configured. For example:

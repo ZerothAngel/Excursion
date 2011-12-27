@@ -8,9 +8,6 @@ groups:
   world:
   - world_nether
 
-delays:
-  pvp: 30
-
 options:
   pvp:
     delay: 30

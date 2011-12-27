@@ -219,16 +219,6 @@ public class ExcursionPlugin extends JavaPlugin {
 
         optionsMap.clear();
 
-        // Delays TODO backwards compatibility, remove in future
-        ConfigurationSection delayNode = config.getConfigurationSection("delays");
-        if (delayNode != null) {
-            for (String key : delayNode.getKeys(false)) {
-                // keyed by name of primary world
-                GroupOptions options = getGroupOptions(key, true);
-                options.setDelay(delayNode.getInt(key, 0));
-            }
-        }
-
         // Options
         ConfigurationSection optionsNode = config.getConfigurationSection("options");
         if (optionsNode != null) {
