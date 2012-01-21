@@ -5,13 +5,13 @@ import static org.tyrannyofheaven.bukkit.util.ToHMessageUtils.sendMessage;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.event.Event.Priority;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityListener;
-import org.tyrannyofheaven.bukkit.util.ToHUtils;
 
-public class ExcursionEntityListener extends EntityListener {
+public class ExcursionEntityListener implements Listener {
 
     private static final String DAMAGE_CANCEL_MSG = "{RED}Teleport cancelled due to damage!";
 
@@ -24,10 +24,10 @@ public class ExcursionEntityListener extends EntityListener {
     }
     
     void registerEvents() {
-        ToHUtils.registerEvent("ENTITY_DAMAGE", this, Priority.Monitor, plugin);
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    @Override
+    @EventHandler(event=EntityDamageEvent.class, priority=EventPriority.MONITOR)
     public void onEntityDamage(EntityDamageEvent event) {
         if (event.isCancelled()) return;
 
