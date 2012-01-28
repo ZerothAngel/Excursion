@@ -27,7 +27,7 @@ public class ExcursionEntityListener implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    @EventHandler(event=EntityDamageEvent.class, priority=EventPriority.MONITOR)
+    @EventHandler(priority=EventPriority.MONITOR)
     public void onEntityDamage(EntityDamageEvent event) {
         if (event.isCancelled()) return;
 
