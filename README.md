@@ -12,7 +12,7 @@ Excursion is a teleport plugin for Bukkit which remembers each player's previous
 
 *   Worlds can be grouped! When a player leaves a grouped world, in addition to the player's location, the player's world is also saved. When the player revisits that group, they are teleported to the exact world and location they left from.
 
-    To make things clearer, suppose there are 2 worlds: WorldA, WorldB, and
+    To make things clearer, suppose there are 3 worlds: WorldA, WorldB, and
 WorldC. WorldA and WorldB are put in a group with WorldA as the "primary world."
 When a player visits this group for the first time (by using `/visit` on either
 WorldA or WorldB), the player will teleport to WorldA's spawn point.
@@ -25,7 +25,9 @@ WorldA or WorldB), the player will teleport to WorldA's spawn point.
 
 *   A delay may be configured per world (or group). When a player leaves that
     world with the `/visit` command, they will be forced to wait the configured
-    number of seconds before actually being teleported away.
+    number of seconds before actually being teleported away. With a delay
+    enabled, you may optionally configure that the teleport be cancelled
+    if the player attacks or receives damage.
 
 ## Installation & Configuration ##
 
