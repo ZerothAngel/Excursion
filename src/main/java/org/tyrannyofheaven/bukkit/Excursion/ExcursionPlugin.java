@@ -70,7 +70,7 @@ public class ExcursionPlugin extends JavaPlugin {
     static {
         // Make these lists configurable someday?
         
-        // Solid blocks
+        // Solid blocks. Current as of Bukkit's Material.java 8604b9d
         Material[] solids = { Material.STONE, Material.GRASS, Material.DIRT,
                 Material.COBBLESTONE, Material.WOOD, Material.BEDROCK,
                 Material.SAND, Material.GRAVEL, Material.GOLD_ORE,
@@ -90,7 +90,8 @@ public class ExcursionPlugin extends JavaPlugin {
                 Material.MONSTER_EGGS, Material.SMOOTH_BRICK,
                 Material.HUGE_MUSHROOM_1, Material.HUGE_MUSHROOM_2,
                 Material.MELON_BLOCK, Material.MYCEL, Material.NETHER_BRICK,
-                Material.ENDER_STONE };
+                Material.ENDER_STONE, Material.REDSTONE_LAMP_OFF,
+                Material.REDSTONE_LAMP_ON };
         solidBlocks = Collections.unmodifiableSet(new HashSet<Material>(Arrays.asList(solids)));
 
         // Unsafe ground

@@ -18,6 +18,13 @@
   </properties>
 
   <dependencies>
+<!-- Only used to figure out solid blocks.
+    <dependency>
+      <groupId>org.bukkit</groupId>
+      <artifactId>craftbukkit</artifactId>
+      <version>1.2.3-R0.1-SNAPSHOT</version>
+    </dependency>
+-->
     <dependency>
       <groupId>org.tyrannyofheaven.bukkit</groupId>
       <artifactId>ToHPluginUtils</artifactId>
