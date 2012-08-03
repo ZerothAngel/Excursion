@@ -2,7 +2,7 @@
 
 Excursion is a teleport plugin for Bukkit which remembers each player's previous location in each world.
 
-**NOTE:** This plugin only uses Superperms (aka Bukkit permissions) for permissions.
+Please post bugs and/or feature requests as [dev.bukkit.org tickets](http://dev.bukkit.org/server-mods/excursion/tickets/).
 
 ## Features ##
 
@@ -63,6 +63,11 @@ Sources may be found on GitHub:
 
 *   [Excursion](https://github.com/ZerothAngel/Excursion)
 *   [ToHPluginUtils](https://github.com/ZerothAngel/ToHPluginUtils)
+
+Development builds may be found on my continuous integration site:
+
+*   [Excursion](http://ci.tyrannyofheaven.org/job/Excursion/lastSuccessfulBuild/org.tyrannyofheaven.bukkit$Excursion/) (Requires ToHPluginUtils.jar)
+*   [Excursion-standlone](http://ci.tyrannyofheaven.org/job/Excursion-standalone/lastSuccessfulBuild/org.tyrannyofheaven.bukkit$Excursion/) (includes ToHPluginUtils, like the version distributed on dev.bukkit.org)
 
 ## To Do ##
 
