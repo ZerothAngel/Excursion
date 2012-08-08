@@ -70,7 +70,7 @@ public class ExcursionPlugin extends JavaPlugin {
     static {
         // Make these lists configurable someday?
         
-        // Solid blocks. Current as of Bukkit's Material.java 8604b9d
+        // Solid blocks. Current as of Bukkit's Material.java 67cf6c6
         Material[] solids = { Material.STONE, Material.GRASS, Material.DIRT,
                 Material.COBBLESTONE, Material.WOOD, Material.BEDROCK,
                 Material.SAND, Material.GRAVEL, Material.GOLD_ORE,
@@ -91,7 +91,8 @@ public class ExcursionPlugin extends JavaPlugin {
                 Material.HUGE_MUSHROOM_1, Material.HUGE_MUSHROOM_2,
                 Material.MELON_BLOCK, Material.MYCEL, Material.NETHER_BRICK,
                 Material.ENDER_STONE, Material.REDSTONE_LAMP_OFF,
-                Material.REDSTONE_LAMP_ON };
+                Material.REDSTONE_LAMP_ON, Material.WOOD_DOUBLE_STEP,
+                Material.EMERALD_ORE, Material.EMERALD_BLOCK };
         solidBlocks = Collections.unmodifiableSet(new HashSet<Material>(Arrays.asList(solids)));
 
         // Unsafe ground
@@ -184,7 +185,7 @@ public class ExcursionPlugin extends JavaPlugin {
 //        List<String> solids = new ArrayList<String>();
 //        for (Material m : Material.values()) {
 //            if (!m.isBlock()) continue;
-//            if (m.getId() != 0 && net.minecraft.server.Block.byId[m.getId()].a())
+//            if (m.getId() != 0 && net.minecraft.server.Block.byId[m.getId()].d())
 //                solids.add("Material." + m);
 //        }
 //        log(this, "solids = %s", solids);
