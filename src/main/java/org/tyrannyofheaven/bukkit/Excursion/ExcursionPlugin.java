@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +42,8 @@ import org.tyrannyofheaven.bukkit.util.ToHFileUtils;
 import org.tyrannyofheaven.bukkit.util.ToHUtils;
 import org.tyrannyofheaven.bukkit.util.VersionInfo;
 import org.tyrannyofheaven.bukkit.util.command.ToHCommandExecutor;
+import org.tyrannyofheaven.bukkit.util.transaction.AsyncTransactionStrategy;
+import org.tyrannyofheaven.bukkit.util.transaction.RetryingAvajeTransactionStrategy;
 
 public class ExcursionPlugin extends JavaPlugin {
 
@@ -62,6 +66,10 @@ public class ExcursionPlugin extends JavaPlugin {
     private FileConfiguration config;
 
     private ExcursionDao dao;
+
+    private AvajeExcursionDao avajeDao;
+
+    private ExecutorService asyncExecutor;
 
     static final Set<Material> solidBlocks;
 
@@ -139,9 +147,10 @@ public class ExcursionPlugin extends JavaPlugin {
     public void onDisable() {
         // Cancel any pending teleports and clear state
         getServer().getScheduler().cancelTasks(this);
-        synchronized (playerStates) {
-            playerStates.clear();
-        }
+
+        asyncExecutor.shutdown();
+
+        playerStates.clear();
 
         log(this, "%s disabled.", versionInfo.getVersionString());
     }
@@ -172,7 +181,11 @@ public class ExcursionPlugin extends JavaPlugin {
         log(this, "Database contains %d saved location%s.", rows, rows == 1 ? "" : "s");
 
         // Set up DAO
-        dao = new AvajeExcursionDao(this);
+        asyncExecutor = Executors.newSingleThreadExecutor();
+        AsyncTransactionStrategy transactionStrategy = new AsyncTransactionStrategy(new RetryingAvajeTransactionStrategy(getDatabase(), 1), asyncExecutor);
+        avajeDao = new AvajeExcursionDao(getDatabase(), transactionStrategy.getExecutor());
+        dao = new TransactionWrapperExcursionDao(avajeDao, transactionStrategy);
+        avajeDao.load();
 
         (new ToHCommandExecutor<ExcursionPlugin>(this, new ExcursionCommand(this))).registerCommands();
         
@@ -258,24 +271,26 @@ public class ExcursionPlugin extends JavaPlugin {
     void reload() {
         config = ToHFileUtils.getConfig(this);
         readConfig();
+        getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+            @Override
+            public void run() {
+                avajeDao.load();
+            }
+        });
     }
 
     private PlayerState getPlayerState(String playerName, boolean create) {
         PlayerState ps;
-        synchronized (playerStates) {
-            ps = playerStates.get(playerName);
-            if (ps == null && create) {
-                ps = new PlayerState();
-                playerStates.put(playerName, ps);
-            }
+        ps = playerStates.get(playerName);
+        if (ps == null && create) {
+            ps = new PlayerState();
+            playerStates.put(playerName, ps);
         }
         return ps;
     }
 
     private PlayerState removePlayerState(String playerName) {
-        synchronized (playerStates) {
-            return playerStates.remove(playerName);
-        }
+        return playerStates.remove(playerName);
     }
 
     void setTeleportTaskId(Player player, int taskId) {

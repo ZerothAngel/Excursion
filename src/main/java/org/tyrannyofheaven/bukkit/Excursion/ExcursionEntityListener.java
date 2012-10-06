@@ -27,10 +27,8 @@ public class ExcursionEntityListener implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    @EventHandler(priority=EventPriority.MONITOR)
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
     public void onEntityDamage(EntityDamageEvent event) {
-        if (event.isCancelled()) return;
-
         // Resolve group of victim's world
         String primaryWorldName = plugin.resolvePrimaryWorld(event.getEntity().getWorld().getName());
         GroupOptions options = plugin.getGroupOptions(primaryWorldName);
