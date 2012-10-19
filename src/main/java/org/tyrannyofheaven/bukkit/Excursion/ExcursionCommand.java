@@ -46,7 +46,7 @@ public class ExcursionCommand {
 
     @Command(value="visit", description="Visit the specified world")
     @Require("excursion.visit")
-    public void visit(CommandSender sender, @Option("world") String group) {
+    public void visit(CommandSender sender, @Option(value="world", completer="destination") String group) {
         if (!(sender instanceof Player)) {
             sendMessage(sender, colorize("{RED}Only usable by players!"));
             return;

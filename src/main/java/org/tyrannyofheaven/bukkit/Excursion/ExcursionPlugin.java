@@ -187,7 +187,9 @@ public class ExcursionPlugin extends JavaPlugin {
         dao = new TransactionWrapperExcursionDao(avajeDao, transactionStrategy);
         avajeDao.load();
 
-        (new ToHCommandExecutor<ExcursionPlugin>(this, new ExcursionCommand(this))).registerCommands();
+        (new ToHCommandExecutor<ExcursionPlugin>(this, new ExcursionCommand(this)))
+            .registerTypeCompleter("destination", new ExcursionTypeCompleter(this))
+            .registerCommands();
         
         (new ExcursionPlayerListener(this)).registerEvents();
         (new ExcursionEntityListener(this)).registerEvents();
