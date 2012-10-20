@@ -66,8 +66,8 @@ Sources may be found on GitHub:
 
 Development builds may be found on my continuous integration site:
 
-*   [Excursion](http://ci.tyrannyofheaven.org/job/Excursion/lastSuccessfulBuild/org.tyrannyofheaven.bukkit$Excursion/) (Requires ToHPluginUtils.jar)
-*   [Excursion-standlone](http://ci.tyrannyofheaven.org/job/Excursion-standalone/lastSuccessfulBuild/org.tyrannyofheaven.bukkit$Excursion/) (includes ToHPluginUtils, like the version distributed on dev.bukkit.org)
+*   [Excursion](http://ci.tyrannyofheaven.org/job/Excursion/) (Requires ToHPluginUtils.jar)
+*   [Excursion-standlone](http://ci.tyrannyofheaven.org/job/Excursion-standalone/) (includes ToHPluginUtils, like the version distributed on dev.bukkit.org)
 
 ## To Do ##
 
