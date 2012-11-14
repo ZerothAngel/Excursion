@@ -73,7 +73,9 @@ public class ExcursionCommand {
 
         // Check world access
         // (group access based on primary world)
-        requireOnePermission(player, "excursion.access.*", String.format("excursion.access.%s", destPrimaryWorldName));
+        requireOnePermission(player, true,
+                String.format("excursion.access.%s", destPrimaryWorldName),
+                "excursion.access.*");
 
         CurrentLocation cl = teleportHelper.validateCurrentLocation(player, destPrimaryWorldName);
         if (cl == null) return;
