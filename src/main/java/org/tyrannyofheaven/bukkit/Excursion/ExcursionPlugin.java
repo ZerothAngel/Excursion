@@ -19,8 +19,8 @@ import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.debug;
 import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -76,7 +76,8 @@ public class ExcursionPlugin extends JavaPlugin {
         // Make these lists configurable someday?
         
         // Solid blocks. Current as of Bukkit's Material.java 69374c7
-        Material[] solids = { Material.STONE, Material.GRASS, Material.DIRT,
+        solidBlocks = Collections.unmodifiableSet(EnumSet.of(
+                Material.STONE, Material.GRASS, Material.DIRT,
                 Material.COBBLESTONE, Material.WOOD, Material.BEDROCK,
                 Material.SAND, Material.GRAVEL, Material.GOLD_ORE,
                 Material.IRON_ORE, Material.COAL_ORE, Material.LOG,
@@ -97,13 +98,14 @@ public class ExcursionPlugin extends JavaPlugin {
                 Material.MELON_BLOCK, Material.MYCEL, Material.NETHER_BRICK,
                 Material.ENDER_STONE, Material.REDSTONE_LAMP_OFF,
                 Material.REDSTONE_LAMP_ON, Material.WOOD_DOUBLE_STEP,
-                Material.EMERALD_ORE, Material.EMERALD_BLOCK, Material.COMMAND };
-        solidBlocks = Collections.unmodifiableSet(new HashSet<Material>(Arrays.asList(solids)));
+                Material.EMERALD_ORE, Material.EMERALD_BLOCK, Material.COMMAND
+                ));
 
         // Unsafe ground
-        Material[] unsafe = { Material.LAVA, Material.STATIONARY_LAVA,
-                Material.FIRE, Material.CACTUS };
-        unsafeGround = Collections.unmodifiableSet(new HashSet<Material>(Arrays.asList(unsafe)));
+        unsafeGround = Collections.unmodifiableSet(EnumSet.of(
+                Material.LAVA, Material.STATIONARY_LAVA, Material.FIRE,
+                Material.CACTUS
+                ));
     }
 
     ExcursionDao getDao() {
