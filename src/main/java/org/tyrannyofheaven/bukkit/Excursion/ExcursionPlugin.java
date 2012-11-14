@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.persistence.PersistenceException;
 
@@ -46,8 +45,6 @@ import org.tyrannyofheaven.bukkit.util.transaction.AsyncTransactionStrategy;
 import org.tyrannyofheaven.bukkit.util.transaction.RetryingAvajeTransactionStrategy;
 
 public class ExcursionPlugin extends JavaPlugin {
-
-    private final Logger logger = Logger.getLogger(getClass().getName());
 
     private VersionInfo versionInfo;
 
@@ -258,7 +255,7 @@ public class ExcursionPlugin extends JavaPlugin {
         }
         
         // Debug logging
-        logger.setLevel(config.getBoolean("debug", false) ? Level.FINE : null);
+        getLogger().setLevel(config.getBoolean("debug", false) ? Level.FINE : null);
     }
 
     private GroupOptions getGroupOptions(String group, boolean create) {
