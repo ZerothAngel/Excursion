@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tyrannyofheaven.bukkit.Excursion;
+package org.tyrannyofheaven.bukkit.Excursion.model;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;

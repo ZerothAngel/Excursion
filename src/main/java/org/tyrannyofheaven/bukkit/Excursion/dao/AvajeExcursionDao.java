@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tyrannyofheaven.bukkit.Excursion;
+package org.tyrannyofheaven.bukkit.Excursion.dao;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.tyrannyofheaven.bukkit.Excursion.model.SavedLocation;
+import org.tyrannyofheaven.bukkit.Excursion.model.SavedLocationId;
 
 import com.avaje.ebean.EbeanServer;
 

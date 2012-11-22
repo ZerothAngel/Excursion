@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tyrannyofheaven.bukkit.Excursion;
+package org.tyrannyofheaven.bukkit.Excursion.dao;
 
 import java.util.HashMap;
 
@@ -21,6 +21,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.tyrannyofheaven.bukkit.Excursion.model.SavedLocation;
+import org.tyrannyofheaven.bukkit.Excursion.model.SavedLocationId;
 
 public abstract class BaseMemoryExcursionDao implements ExcursionDao {
 
