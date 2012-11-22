@@ -64,6 +64,18 @@ class ExcursionTypeCompleter implements TypeCompleter {
                         i.remove();
                 }
             }
+            else {
+                for (Iterator<String> i = worlds.iterator(); i.hasNext();) {
+                    String world = i.next();
+                    // Get primary world
+                    String alias = plugin.getAliasMap().get(world);
+                    if (alias == null)
+                        alias = world;
+                    String perm = "excursion.access." + alias;
+                    if (sender.isPermissionSet(perm) && !sender.hasPermission(perm)) // explicitly false?
+                        i.remove();
+                }
+            }
 
             List<String> result = new ArrayList<String>(worlds.size());
             StringUtil.copyPartialMatches(partial, worlds, result);
