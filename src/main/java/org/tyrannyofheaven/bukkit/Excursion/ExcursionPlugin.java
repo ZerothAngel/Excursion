@@ -277,7 +277,7 @@ public class ExcursionPlugin extends JavaPlugin {
     void reload() {
         config = ToHFileUtils.getConfig(this);
         readConfig();
-        getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+        getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
             @Override
             public void run() {
                 avajeDao.load();
