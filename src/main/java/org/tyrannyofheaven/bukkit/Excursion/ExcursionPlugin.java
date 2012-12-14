@@ -79,32 +79,17 @@ public class ExcursionPlugin extends JavaPlugin {
 
     static {
         // Make these lists configurable someday?
-        
-        // Solid blocks. Current as of Bukkit's Material.java 69374c7
-        solidBlocks = Collections.unmodifiableSet(EnumSet.of(
-                Material.STONE, Material.GRASS, Material.DIRT,
-                Material.COBBLESTONE, Material.WOOD, Material.BEDROCK,
-                Material.SAND, Material.GRAVEL, Material.GOLD_ORE,
-                Material.IRON_ORE, Material.COAL_ORE, Material.LOG,
-                Material.LEAVES, Material.SPONGE, Material.LAPIS_ORE,
-                Material.LAPIS_BLOCK, Material.DISPENSER, Material.SANDSTONE,
-                Material.NOTE_BLOCK, Material.WOOL, Material.GOLD_BLOCK,
-                Material.IRON_BLOCK, Material.DOUBLE_STEP, Material.BRICK,
-                Material.TNT, Material.BOOKSHELF, Material.MOSSY_COBBLESTONE,
-                Material.OBSIDIAN, Material.DIAMOND_ORE,
-                Material.DIAMOND_BLOCK, Material.WORKBENCH, Material.FURNACE,
-                Material.BURNING_FURNACE, Material.REDSTONE_ORE,
-                Material.GLOWING_REDSTONE_ORE, Material.SNOW_BLOCK,
-                Material.CLAY, Material.JUKEBOX, Material.PUMPKIN,
-                Material.NETHERRACK, Material.SOUL_SAND, Material.GLOWSTONE,
-                Material.JACK_O_LANTERN, Material.LOCKED_CHEST,
-                Material.MONSTER_EGGS, Material.SMOOTH_BRICK,
-                Material.HUGE_MUSHROOM_1, Material.HUGE_MUSHROOM_2,
-                Material.MELON_BLOCK, Material.MYCEL, Material.NETHER_BRICK,
-                Material.ENDER_STONE, Material.REDSTONE_LAMP_OFF,
-                Material.REDSTONE_LAMP_ON, Material.WOOD_DOUBLE_STEP,
-                Material.EMERALD_ORE, Material.EMERALD_BLOCK, Material.COMMAND
-                ));
+
+        // Build list of blocks that would harm the player should they teleport
+        // inside.
+        Set<Material> solids = new HashSet<Material>();
+        for (Material m : Material.values()) {
+            if (!m.isSolid()) continue; // Must be solid
+            if (m.isTransparent()) continue; // Can't harm if fully transparent
+            if (!m.isOccluding()) continue; // Can't harm if not fully occluding (e.g. STEP)
+            solids.add(m);
+        }
+        solidBlocks = Collections.unmodifiableSet(EnumSet.copyOf(solids));
 
         // Unsafe ground
         unsafeGround = Collections.unmodifiableSet(EnumSet.of(
@@ -197,17 +182,6 @@ public class ExcursionPlugin extends JavaPlugin {
         
         (new ExcursionPlayerListener(this)).registerEvents();
         (new ExcursionEntityListener(this)).registerEvents();
-
-        // Cheap way to determine solid blocks.
-        // However, relies on obfuscated function.
-        // Subvert to build our solid block list for now.
-//        List<String> solids = new ArrayList<String>();
-//        for (Material m : Material.values()) {
-//            if (!m.isBlock()) continue;
-//            if (m.getId() != 0 && net.minecraft.server.Block.byId[m.getId()].c())
-//                solids.add("Material." + m);
-//        }
-//        log(this, "solids = %s", solids);
 
         log(this, "%s enabled.", versionInfo.getVersionString());
     }
