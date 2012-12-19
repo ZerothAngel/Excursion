@@ -15,6 +15,12 @@ permissions:
   excursion.visit:
     description: Allows use of the /visit command
     default: op
+  excursion.visit.now:
+    description: Allows bypass of /visit delay
+    default: op
+  excursion.visit.other:
+    description: Allows use of /visit on other players
+    default: op
   excursion.access.*:
     description: Allows access to all worlds
     default: op

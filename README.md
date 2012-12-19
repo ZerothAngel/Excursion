@@ -48,6 +48,8 @@ Re-reads config.yml.
 Permission nodes are:
 
 *   `excursion.visit` - Allows use of the `/visit` command.
+*   `excursion.visit.now` - Allows the use of the `-n` (or `--now`) option with the `/visit` command. This bypasses any delay configured into the current world.
+*   `excursion.visit.other` - Allows specifying a player with the `/visit` command, e.g. `/visit creative ZerothAngel`. This may be useful for scripts or other situations where commands are executed automatically.
 *   `excursion.access.<world>` - Allows visiting `<world>`. You must use the exact name of the world directory in your server directory!
 *   `excursion.access.*` - Allows visiting all worlds.
 *   `excursion.reload` - Allows use of the `/excursion reload` command

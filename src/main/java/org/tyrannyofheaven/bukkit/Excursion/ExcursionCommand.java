@@ -21,6 +21,7 @@ import static org.tyrannyofheaven.bukkit.util.ToHMessageUtils.colorize;
 import static org.tyrannyofheaven.bukkit.util.ToHMessageUtils.sendMessage;
 import static org.tyrannyofheaven.bukkit.util.permissions.PermissionUtils.requireOnePermission;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,6 +30,7 @@ import org.tyrannyofheaven.bukkit.util.command.Command;
 import org.tyrannyofheaven.bukkit.util.command.HelpBuilder;
 import org.tyrannyofheaven.bukkit.util.command.Option;
 import org.tyrannyofheaven.bukkit.util.command.Require;
+import org.tyrannyofheaven.bukkit.util.permissions.PermissionUtils;
 
 public class ExcursionCommand {
 
@@ -46,13 +48,30 @@ public class ExcursionCommand {
 
     @Command(value="visit", description="Visit the specified world")
     @Require("excursion.visit")
-    public void visit(CommandSender sender, @Option(value="world", completer="destination") String group) {
-        if (!(sender instanceof Player)) {
+    public void visit(CommandSender sender, @Option(value={"-n", "--now"}) boolean now, @Option(value="world", completer="destination") String group, @Option(value="player", optional=true, completer="player") String playerName) {
+        // Check option permissions and determine player to teleport
+        if (now) {
+            PermissionUtils.requireOnePermission(sender, "excursion.visit.now");
+        }
+
+        Player player;
+
+        if (playerName != null) {
+            PermissionUtils.requireOnePermission(sender, "excursion.visit.other");
+            
+            player = Bukkit.getPlayerExact(playerName);
+            if (player == null) {
+                sendMessage(sender, colorize("{RED}No such player."));
+                return;
+            }
+        }
+        else if (!(sender instanceof Player)) {
             sendMessage(sender, colorize("{RED}Only usable by players!"));
             return;
         }
-
-        Player player = (Player)sender;
+        else {
+            player = (Player)sender;
+        }
 
         // Resolve destination world
         String alias = plugin.getAliasMap().get(group);
@@ -87,7 +106,7 @@ public class ExcursionCommand {
             plugin.getServer().getScheduler().cancelTask(taskId);
         }
 
-        if (cl.getDelay() < 1) {
+        if (cl.getDelay() < 1 || now) {
             // Teleport immediately
             teleportHelper.teleport(player, destPrimaryWorldName, destPrimaryWorld, cl);
         }
