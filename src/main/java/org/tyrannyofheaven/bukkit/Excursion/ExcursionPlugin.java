@@ -63,6 +63,9 @@ public class ExcursionPlugin extends JavaPlugin {
 
     private final GroupOptions DEFAULT_GROUP_OPTIONS = new GroupOptions();
 
+    // Default max attempts (after the first) to complete a transaction
+    private static final int DEFAULT_TXN_MAX_RETRIES = 3;
+
     private final Set<String> blacklist = new HashSet<String>();
 
     private FileConfiguration config;
@@ -72,6 +75,9 @@ public class ExcursionPlugin extends JavaPlugin {
     private AvajeExcursionDao avajeDao;
 
     private ExecutorService asyncExecutor;
+
+    // Maximum number of times to retry transactions (so total attempts is +1)
+    private int txnMaxRetries;
 
     static final Set<Material> solidBlocks;
 
@@ -171,7 +177,7 @@ public class ExcursionPlugin extends JavaPlugin {
 
         // Set up DAO
         asyncExecutor = Executors.newSingleThreadExecutor();
-        AsyncTransactionStrategy transactionStrategy = new AsyncTransactionStrategy(new RetryingAvajeTransactionStrategy(getDatabase(), 1), asyncExecutor);
+        AsyncTransactionStrategy transactionStrategy = new AsyncTransactionStrategy(new RetryingAvajeTransactionStrategy(getDatabase(), txnMaxRetries), asyncExecutor);
         avajeDao = new AvajeExcursionDao(getDatabase(), transactionStrategy.getExecutor());
         dao = new TransactionWrapperExcursionDao(avajeDao, transactionStrategy);
         avajeDao.load();
@@ -235,6 +241,8 @@ public class ExcursionPlugin extends JavaPlugin {
             blacklist.add(entry.toString());
         }
         
+        txnMaxRetries = config.getInt("txn-max-retries", DEFAULT_TXN_MAX_RETRIES); // FIXME hidden
+
         // Debug logging
         getLogger().setLevel(config.getBoolean("debug", false) ? Level.FINE : null);
     }
