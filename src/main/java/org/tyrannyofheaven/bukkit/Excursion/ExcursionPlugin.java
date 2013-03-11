@@ -32,10 +32,13 @@ import java.util.logging.Level;
 
 import javax.persistence.PersistenceException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.tyrannyofheaven.bukkit.Excursion.dao.AvajeExcursionDao;
 import org.tyrannyofheaven.bukkit.Excursion.dao.ExcursionDao;
@@ -51,9 +54,9 @@ import org.tyrannyofheaven.bukkit.util.transaction.RetryingAvajeTransactionStrat
 
 public class ExcursionPlugin extends JavaPlugin {
 
-    private VersionInfo versionInfo;
+    private static final String PLAYER_METADATA_KEY = "Excursion.PlayerState";
 
-    private final Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
+    private VersionInfo versionInfo;
 
     private final Map<String, String> aliasMap = new HashMap<String, String>();
 
@@ -145,7 +148,10 @@ public class ExcursionPlugin extends JavaPlugin {
 
         asyncExecutor.shutdown();
 
-        playerStates.clear();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            // Tasks already cancelled above, so just clear metadata
+            player.removeMetadata(PLAYER_METADATA_KEY, this);
+        }
 
         log(this, "%s disabled.", versionInfo.getVersionString());
     }
@@ -267,22 +273,34 @@ public class ExcursionPlugin extends JavaPlugin {
         });
     }
 
-    private PlayerState getPlayerState(String playerName, boolean create) {
-        PlayerState ps;
-        ps = playerStates.get(playerName);
+    private PlayerState getPlayerState(Player player, boolean create) {
+        PlayerState ps = getPlayerState(player);
         if (ps == null && create) {
             ps = new PlayerState();
-            playerStates.put(playerName, ps);
+            player.setMetadata(PLAYER_METADATA_KEY, new FixedMetadataValue(this, ps));
         }
         return ps;
     }
 
-    private PlayerState removePlayerState(String playerName) {
-        return playerStates.remove(playerName);
+    private PlayerState getPlayerState(Player player) {
+        PlayerState ps = null;
+        for (MetadataValue mv : player.getMetadata(PLAYER_METADATA_KEY)) {
+            if (mv.getOwningPlugin() == this) {
+                ps = (PlayerState)mv.value();
+                break;
+            }
+        }
+        return ps;
+    }
+
+    private PlayerState removePlayerState(Player player) {
+        PlayerState ps = getPlayerState(player);
+        player.removeMetadata(PLAYER_METADATA_KEY, this);
+        return ps;
     }
 
     void setTeleportTaskId(Player player, int taskId) {
-        PlayerState ps = getPlayerState(player.getName(), true);
+        PlayerState ps = getPlayerState(player, true);
         // Just in case... cancel previous teleport task
         if (ps.getTaskId() != -1)
             getServer().getScheduler().cancelTask(ps.getTaskId());
@@ -290,15 +308,15 @@ public class ExcursionPlugin extends JavaPlugin {
     }
 
     // NB: Does NOT cancel teleport task
-    int clearTeleportTaskId(String playerName) {
-        PlayerState ps = removePlayerState(playerName);
+    int clearTeleportTaskId(Player player) {
+        PlayerState ps = removePlayerState(player);
         return ps == null ? -1 : ps.getTaskId();
     }
 
-    boolean cancelTeleportTask(String playerName) {
-        int taskId = clearTeleportTaskId(playerName);
+    boolean cancelTeleportTask(Player player) {
+        int taskId = clearTeleportTaskId(player);
         if (taskId != -1) {
-            debug(this, "Clearing teleport task for %s (%d)", playerName, taskId);
+            debug(this, "Clearing teleport task for %s (%d)", player.getName(), taskId);
             getServer().getScheduler().cancelTask(taskId);
             return true;
         }

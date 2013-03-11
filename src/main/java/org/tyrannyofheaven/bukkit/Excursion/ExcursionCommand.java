@@ -100,7 +100,7 @@ public class ExcursionCommand {
         if (cl == null) return;
 
         // Clear any previously-scheduled teleport task for this player
-        int taskId = plugin.clearTeleportTaskId(player.getName());
+        int taskId = plugin.clearTeleportTaskId(player);
         if (taskId != -1) {
             debug(plugin, "Clearing previous teleport task for %s (%d)", player.getName(), taskId);
             plugin.getServer().getScheduler().cancelTask(taskId);

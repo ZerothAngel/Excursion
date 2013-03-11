@@ -52,7 +52,7 @@ public class ExcursionEntityListener implements Listener {
         if (options.isCancelOnDamage()) {
             if (event.getEntity() instanceof Player) {
                 Player victim = (Player)event.getEntity();
-                if (plugin.cancelTeleportTask(victim.getName())) {
+                if (plugin.cancelTeleportTask(victim)) {
                     sendMessage(victim, colorize(DAMAGE_CANCEL_MSG));
                 }
             }
@@ -64,7 +64,7 @@ public class ExcursionEntityListener implements Listener {
                 EntityDamageByEntityEvent e = (EntityDamageByEntityEvent)event;
                 if (e.getDamager() instanceof Player) {
                     Player attacker = (Player)e.getDamager();
-                    if (plugin.cancelTeleportTask(attacker.getName())) {
+                    if (plugin.cancelTeleportTask(attacker)) {
                         sendMessage(attacker, colorize(COMBAT_CANCEL_MSG));
                     }
                 }
@@ -73,7 +73,7 @@ public class ExcursionEntityListener implements Listener {
                     Projectile p = (Projectile)e.getDamager();
                     if (p.getShooter() instanceof Player) {
                         Player shooter = (Player)p.getShooter();
-                        if (plugin.cancelTeleportTask(shooter.getName())) {
+                        if (plugin.cancelTeleportTask(shooter)) {
                             sendMessage(shooter, colorize(COMBAT_CANCEL_MSG));
                         }
                     }

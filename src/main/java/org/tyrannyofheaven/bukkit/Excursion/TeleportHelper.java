@@ -32,10 +32,7 @@ public class TeleportHelper {
         this.plugin = plugin;
     }
 
-    public void teleport(String playerName, String destPrimaryWorldName) {
-        Player player = plugin.getServer().getPlayerExact(playerName);
-        if (player == null) return;
-
+    public void teleport(Player player, String destPrimaryWorldName) {
         if (player.getHealth() < 1) {
             sendMessage(player, colorize("{RED}Teleport cancelled because you are dead!"));
             return;

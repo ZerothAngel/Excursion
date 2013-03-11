@@ -38,12 +38,12 @@ public class ExcursionPlayerListener implements Listener {
 
     @EventHandler(priority=EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        plugin.cancelTeleportTask(event.getPlayer().getName());
+        plugin.cancelTeleportTask(event.getPlayer());
     }
 
     @EventHandler(priority=EventPriority.MONITOR)
     public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
-        if (plugin.cancelTeleportTask(event.getPlayer().getName())) {
+        if (plugin.cancelTeleportTask(event.getPlayer())) {
             sendMessage(event.getPlayer(), colorize("{GRAY}(Teleport cancelled due to world change)"));
         }
     }

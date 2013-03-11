@@ -15,6 +15,8 @@
  */
 package org.tyrannyofheaven.bukkit.Excursion;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.tyrannyofheaven.bukkit.util.ToHLoggingUtils;
 
 public class TeleportTask implements Runnable {
@@ -37,9 +39,12 @@ public class TeleportTask implements Runnable {
     @Override
     public void run() {
         ToHLoggingUtils.debug(plugin, "Executing delayed teleport for %s", playerName);
-        // Clear saved task ID first
-        plugin.clearTeleportTaskId(playerName);
-        teleportHelper.teleport(playerName, destPrimaryWorldName);
+        Player player = Bukkit.getPlayerExact(playerName);
+        if (player != null) {
+            // Clear saved task ID first
+            plugin.clearTeleportTaskId(player);
+            teleportHelper.teleport(player, destPrimaryWorldName);
+        }
     }
 
 }
