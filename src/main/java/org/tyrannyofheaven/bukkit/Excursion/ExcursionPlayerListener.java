@@ -22,6 +22,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class ExcursionPlayerListener implements Listener {
@@ -45,6 +46,21 @@ public class ExcursionPlayerListener implements Listener {
     public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
         if (plugin.cancelTeleportTask(event.getPlayer())) {
             sendMessage(event.getPlayer(), colorize("{GRAY}(Teleport cancelled due to world change)"));
+        }
+    }
+
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        // Only bother if moved to a different block
+        if (event.getFrom().getBlockX() != event.getTo().getBlockX() ||
+                event.getFrom().getBlockZ() != event.getTo().getBlockZ() ||
+                event.getFrom().getBlockY() != event.getTo().getBlockY()) {
+            String primaryWorldName = plugin.resolvePrimaryWorld(event.getTo().getWorld().getName());
+            GroupOptions options = plugin.getGroupOptions(primaryWorldName);
+            
+            if (options.isCancelOnMove() && plugin.cancelTeleportTask(event.getPlayer())) {
+                sendMessage(event.getPlayer(), colorize("{RED}Teleport cancelled due to movement!"));
+            }
         }
     }
 

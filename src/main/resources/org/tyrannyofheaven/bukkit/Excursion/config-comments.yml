@@ -43,6 +43,10 @@ options: |
                     the player attacks something (melee, bow). Defaults to false.
     damage-cancel - Set to true if delayed teleports should be cancelled when
                     the player takes any damage. Defaults to false.
+    move-cancel   - Set to true if delayed teleports should be cancelled when
+                    the player moves across block boundaries. Looking around
+                    or moving within a block does not force cancellation.
+                    Defaults to false.
 
 blacklist: |
   Blacklist. When /visit'ing out of a blacklisted world, previous locations are

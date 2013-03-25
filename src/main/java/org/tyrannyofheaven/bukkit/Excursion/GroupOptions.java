@@ -23,6 +23,8 @@ public class GroupOptions {
     
     private boolean cancelOnDamage = false;
 
+    private boolean cancelOnMove = false;
+
     public int getDelay() {
         return delay;
     }
@@ -45,6 +47,14 @@ public class GroupOptions {
 
     public void setCancelOnDamage(boolean cancelOnDamage) {
         this.cancelOnDamage = cancelOnDamage;
+    }
+
+    public boolean isCancelOnMove() {
+        return cancelOnMove;
+    }
+
+    public void setCancelOnMove(boolean cancelOnMove) {
+        this.cancelOnMove = cancelOnMove;
     }
 
 }

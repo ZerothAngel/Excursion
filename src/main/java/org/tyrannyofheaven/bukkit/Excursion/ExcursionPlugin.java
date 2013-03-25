@@ -237,6 +237,7 @@ public class ExcursionPlugin extends JavaPlugin {
                     options.setDelay(groupOptions.getInt("delay", options.getDelay()));
                     options.setCancelOnAttack(groupOptions.getBoolean("attack-cancel", options.isCancelOnAttack()));
                     options.setCancelOnDamage(groupOptions.getBoolean("damage-cancel", options.isCancelOnDamage()));
+                    options.setCancelOnMove(groupOptions.getBoolean("move-cancel", options.isCancelOnMove()));
                 }
             }
         }

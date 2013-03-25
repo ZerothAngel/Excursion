@@ -27,7 +27,7 @@ WorldA or WorldB), the player will teleport to WorldA's spawn point.
     world with the `/visit` command, they will be forced to wait the configured
     number of seconds before actually being teleported away. With a delay
     enabled, you may optionally configure that the teleport be cancelled
-    if the player attacks or receives damage.
+    if the player attacks, receives damage, or moves a significant amount.
 
 ## Installation & Configuration ##
 
