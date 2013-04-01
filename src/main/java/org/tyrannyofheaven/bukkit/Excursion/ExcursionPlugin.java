@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import javax.persistence.PersistenceException;
@@ -147,6 +148,12 @@ public class ExcursionPlugin extends JavaPlugin {
         getServer().getScheduler().cancelTasks(this);
 
         asyncExecutor.shutdown();
+        try {
+            asyncExecutor.awaitTermination(60L, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException e) {
+            // Ignore
+        }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             // Tasks already cancelled above, so just clear metadata
