@@ -66,7 +66,8 @@ Sources may be found on GitHub:
 *   [Excursion](https://github.com/ZerothAngel/Excursion)
 *   [ToHPluginUtils](https://github.com/ZerothAngel/ToHPluginUtils)
 
-Development builds may be found on my continuous integration site:
+Development builds of this project can be acquired at the provided continuous integration server. 
+These builds have not been approved by the BukkitDev staff. Use them at your own risk.
 
 *   [Excursion](http://ci.tyrannyofheaven.org/job/Excursion/) (Requires ToHPluginUtils.jar)
 *   [Excursion-standlone](http://ci.tyrannyofheaven.org/job/Excursion-standalone/) (includes ToHPluginUtils, like the version distributed on dev.bukkit.org)
