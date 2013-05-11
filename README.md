@@ -12,10 +12,7 @@ Please post bugs and/or feature requests as [dev.bukkit.org tickets](http://dev.
 
 *   Worlds can be grouped! When a player leaves a grouped world, in addition to the player's location, the player's world is also saved. When the player revisits that group, they are teleported to the exact world and location they left from.
 
-    To make things clearer, suppose there are 3 worlds: WorldA, WorldB, and
-WorldC. WorldA and WorldB are put in a group with WorldA as the "primary world."
-When a player visits this group for the first time (by using `/visit` on either
-WorldA or WorldB), the player will teleport to WorldA's spawn point.
+    To make things clearer, suppose there are 3 worlds: WorldA, WorldB, and WorldC. WorldA and WorldB are put in a group with WorldA as the "primary world." When a player visits this group for the first time (by using `/visit` on either WorldA or WorldB), the player will teleport to WorldA's spawn point.
 
     Let's now say the player is in WorldB and visits WorldC. When the player returns to the group, they will teleport back to their saved location in WorldB.
 
@@ -23,11 +20,7 @@ WorldA or WorldB), the player will teleport to WorldA's spawn point.
 
 *   Worlds (and groups) can have aliases.
 
-*   A delay may be configured per world (or group). When a player leaves that
-    world with the `/visit` command, they will be forced to wait the configured
-    number of seconds before actually being teleported away. With a delay
-    enabled, you may optionally configure that the teleport be cancelled
-    if the player attacks, receives damage, or moves a significant amount.
+*   A delay may be configured per world (or group). When a player leaves that world with the `/visit` command, they will be forced to wait the configured number of seconds before actually being teleported away. With a delay enabled, you may optionally configure that the teleport be cancelled if the player attacks, receives damage, or moves a significant amount.
 
 ## Installation & Configuration ##
 
@@ -58,8 +51,7 @@ Operators have all permissions by default.
 
 ## License & Source ##
 
-Excursion is released under the
-[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+Excursion is released under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 Sources may be found on GitHub:
 
