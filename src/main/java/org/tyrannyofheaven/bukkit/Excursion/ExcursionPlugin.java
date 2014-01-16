@@ -258,7 +258,7 @@ public class ExcursionPlugin extends JavaPlugin {
         txnMaxRetries = config.getInt("txn-max-retries", DEFAULT_TXN_MAX_RETRIES); // FIXME hidden
 
         // Debug logging
-        getLogger().setLevel(config.getBoolean("debug", false) ? Level.FINE : null);
+        getLogger().setLevel(config.getBoolean("debug", false) ? Level.CONFIG : null);
     }
 
     private GroupOptions getGroupOptions(String group, boolean create) {
