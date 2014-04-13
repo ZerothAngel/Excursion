@@ -15,8 +15,13 @@
  */
 package org.tyrannyofheaven.bukkit.Excursion.model;
 
+import static org.tyrannyofheaven.bukkit.util.uuid.UuidUtils.uncanonicalizeUuid;
+
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 @Embeddable
 public class SavedLocationId {
@@ -53,6 +58,11 @@ public class SavedLocationId {
 
     public void setPlayer(String player) {
         this.player = player;
+    }
+
+    @Transient
+    public UUID getUuid() {
+        return uncanonicalizeUuid(getPlayer());
     }
 
     @Override

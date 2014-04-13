@@ -15,13 +15,25 @@
  */
 package org.tyrannyofheaven.bukkit.Excursion.dao;
 
-import java.util.List;
-import java.util.concurrent.Executor;
+import static org.tyrannyofheaven.bukkit.util.uuid.UuidUtils.canonicalizeUuid;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.regex.Matcher;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.tyrannyofheaven.bukkit.Excursion.model.SavedLocation;
 import org.tyrannyofheaven.bukkit.Excursion.model.SavedLocationId;
+import org.tyrannyofheaven.bukkit.util.uuid.UuidUtils;
 
 import com.avaje.ebean.EbeanServer;
 
@@ -118,6 +130,54 @@ public class AvajeExcursionDao extends BaseMemoryExcursionDao {
         for (SavedLocation sl : sls) {
             SavedLocation newSl = new SavedLocation(sl.getId().getGroup(), sl.getWorld(), sl.getId().getPlayer(), sl.getX(), sl.getY(), sl.getZ(), sl.getYaw(), sl.getPitch());
             getSavedLocations().put(newSl.getId(), newSl);
+        }
+    }
+
+    public void migrate() {
+        getEbeanServer().beginTransaction();
+        try {
+            List<SavedLocation> sls = getEbeanServer().createQuery(SavedLocation.class).findList();
+
+            // Figure out what needs migrating
+            Set<String> usernames = new HashSet<String>();
+            List<SavedLocation> toMigrate = new ArrayList<SavedLocation>();
+            for (SavedLocation sl : sls) {
+                Matcher m = UuidUtils.SHORT_UUID_RE.matcher(sl.getId().getPlayer());
+                if (!m.matches()) {
+                    usernames.add(sl.getId().getPlayer().toLowerCase());
+                    toMigrate.add(sl);
+                }
+            }
+
+            // Resolve names using Bukkit
+            Map<String, UUID> resolved = new HashMap<String, UUID>();
+            for (String username : usernames) {
+                OfflinePlayer player = Bukkit.getOfflinePlayer(username);
+                // Not sure if it can ever be null. And #getUniqueId() used to be nullable in <1.7.6
+                if (player != null && player.getUniqueId() != null) {
+                    resolved.put(username, player.getUniqueId());
+                }
+            }
+
+            // Update IDs
+            List<SavedLocation> toSave = new ArrayList<SavedLocation>();
+            for (SavedLocation sl : toMigrate) {
+                UUID uuid = resolved.get(sl.getId().getPlayer().toLowerCase());
+                if (uuid != null) {
+                    // Create and save a new one with new ID
+                    SavedLocation nsl = new SavedLocation(sl.getId().getGroup(), sl.getWorld(), canonicalizeUuid(uuid), sl.getX(), sl.getY(), sl.getZ(), sl.getYaw(), sl.getPitch());
+                    toSave.add(nsl);
+                }
+            }
+
+            // Delete migrated ones regardless of success
+            getEbeanServer().delete(toMigrate);
+            getEbeanServer().save(toSave);
+
+            getEbeanServer().commitTransaction();
+        }
+        finally {
+            getEbeanServer().endTransaction();
         }
     }
 

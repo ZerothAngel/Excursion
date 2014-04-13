@@ -15,6 +15,8 @@
  */
 package org.tyrannyofheaven.bukkit.Excursion.dao;
 
+import static org.tyrannyofheaven.bukkit.util.uuid.UuidUtils.canonicalizeUuid;
+
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
@@ -34,10 +36,11 @@ public abstract class BaseMemoryExcursionDao implements ExcursionDao {
 
     @Override
     public void saveLocation(Player player, String group, Location location) {
-        SavedLocationId key = new SavedLocationId(group, player.getName());
+        String uuid = canonicalizeUuid(player.getUniqueId());
+        SavedLocationId key = new SavedLocationId(group, uuid);
         SavedLocation sl = savedLocations.get(key);
         if (sl == null) {
-            sl = new SavedLocation(group, location.getWorld().getName(), player.getName(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+            sl = new SavedLocation(group, location.getWorld().getName(), uuid, location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
             savedLocations.put(key, sl);
         }
         else {
@@ -56,7 +59,7 @@ public abstract class BaseMemoryExcursionDao implements ExcursionDao {
 
     @Override
     public Location loadLocation(Player player, String group) {
-        SavedLocationId key = new SavedLocationId(group, player.getName());
+        SavedLocationId key = new SavedLocationId(group, canonicalizeUuid(player.getUniqueId()));
         SavedLocation sl = savedLocations.get(key);
         if (sl != null) {
             World world = Bukkit.getWorld(sl.getWorld());

@@ -193,6 +193,7 @@ public class ExcursionPlugin extends JavaPlugin {
         AsyncTransactionStrategy transactionStrategy = new AsyncTransactionStrategy(new RetryingAvajeTransactionStrategy(getDatabase(), txnMaxRetries), asyncExecutor);
         avajeDao = new AvajeExcursionDao(getDatabase(), transactionStrategy.getExecutor());
         dao = new TransactionWrapperExcursionDao(avajeDao, transactionStrategy);
+        avajeDao.migrate();
         avajeDao.load();
 
         (new ToHCommandExecutor<ExcursionPlugin>(this, new ExcursionCommand(this)))
