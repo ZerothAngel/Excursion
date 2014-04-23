@@ -16,6 +16,7 @@
 package org.tyrannyofheaven.bukkit.Excursion;
 
 import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.debug;
+import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.error;
 import static org.tyrannyofheaven.bukkit.util.ToHLoggingUtils.log;
 
 import java.util.ArrayList;
@@ -52,6 +53,8 @@ import org.tyrannyofheaven.bukkit.util.VersionInfo;
 import org.tyrannyofheaven.bukkit.util.command.ToHCommandExecutor;
 import org.tyrannyofheaven.bukkit.util.transaction.AsyncTransactionStrategy;
 import org.tyrannyofheaven.bukkit.util.transaction.RetryingAvajeTransactionStrategy;
+import org.tyrannyofheaven.bukkit.util.uuid.MojangUuidResolver;
+import org.tyrannyofheaven.bukkit.util.uuid.UuidResolver;
 
 public class ExcursionPlugin extends JavaPlugin {
 
@@ -193,7 +196,15 @@ public class ExcursionPlugin extends JavaPlugin {
         AsyncTransactionStrategy transactionStrategy = new AsyncTransactionStrategy(new RetryingAvajeTransactionStrategy(getDatabase(), txnMaxRetries), asyncExecutor);
         avajeDao = new AvajeExcursionDao(getDatabase(), transactionStrategy.getExecutor());
         dao = new TransactionWrapperExcursionDao(avajeDao, transactionStrategy);
-        avajeDao.migrate();
+        UuidResolver uuidResolver = new MojangUuidResolver(100, 5L, TimeUnit.MINUTES);
+        try {
+            avajeDao.migrate(uuidResolver);
+        }
+        catch (Exception e) {
+            error(this, "Exception while migrating database:", e);
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
         avajeDao.load();
 
         (new ToHCommandExecutor<ExcursionPlugin>(this, new ExcursionCommand(this)))

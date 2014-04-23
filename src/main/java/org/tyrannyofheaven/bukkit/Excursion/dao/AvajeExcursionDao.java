@@ -18,21 +18,19 @@ package org.tyrannyofheaven.bukkit.Excursion.dao;
 import static org.tyrannyofheaven.bukkit.util.uuid.UuidUtils.canonicalizeUuid;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.tyrannyofheaven.bukkit.Excursion.model.SavedLocation;
 import org.tyrannyofheaven.bukkit.Excursion.model.SavedLocationId;
+import org.tyrannyofheaven.bukkit.util.uuid.UuidDisplayName;
+import org.tyrannyofheaven.bukkit.util.uuid.UuidResolver;
 import org.tyrannyofheaven.bukkit.util.uuid.UuidUtils;
 
 import com.avaje.ebean.EbeanServer;
@@ -133,7 +131,7 @@ public class AvajeExcursionDao extends BaseMemoryExcursionDao {
         }
     }
 
-    public void migrate() {
+    public void migrate(UuidResolver uuidResolver) throws Exception {
         getEbeanServer().beginTransaction();
         try {
             List<SavedLocation> sls = getEbeanServer().createQuery(SavedLocation.class).findList();
@@ -150,22 +148,15 @@ public class AvajeExcursionDao extends BaseMemoryExcursionDao {
             }
 
             // Resolve names using Bukkit
-            Map<String, UUID> resolved = new HashMap<String, UUID>();
-            for (String username : usernames) {
-                OfflinePlayer player = Bukkit.getOfflinePlayer(username);
-                // Not sure if it can ever be null. And #getUniqueId() used to be nullable in <1.7.6
-                if (player != null && player.getUniqueId() != null) {
-                    resolved.put(username, player.getUniqueId());
-                }
-            }
+            Map<String, UuidDisplayName> resolved = uuidResolver.resolve(usernames);
 
             // Update IDs
             List<SavedLocation> toSave = new ArrayList<SavedLocation>();
             for (SavedLocation sl : toMigrate) {
-                UUID uuid = resolved.get(sl.getId().getPlayer().toLowerCase());
-                if (uuid != null) {
+                UuidDisplayName udn = resolved.get(sl.getId().getPlayer().toLowerCase());
+                if (udn != null) {
                     // Create and save a new one with new ID
-                    SavedLocation nsl = new SavedLocation(sl.getId().getGroup(), sl.getWorld(), canonicalizeUuid(uuid), sl.getX(), sl.getY(), sl.getZ(), sl.getYaw(), sl.getPitch());
+                    SavedLocation nsl = new SavedLocation(sl.getId().getGroup(), sl.getWorld(), canonicalizeUuid(udn.getUuid()), sl.getX(), sl.getY(), sl.getZ(), sl.getYaw(), sl.getPitch());
                     toSave.add(nsl);
                 }
             }
