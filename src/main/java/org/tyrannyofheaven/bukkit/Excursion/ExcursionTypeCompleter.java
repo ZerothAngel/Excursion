@@ -40,7 +40,7 @@ class ExcursionTypeCompleter implements TypeCompleter {
     public List<String> complete(Class<?> clazz, String arg, CommandSender sender, String partial) {
         if (clazz == String.class) {
             // Build list of actual available worlds
-            Set<String> worlds = new HashSet<String>();
+            Set<String> worlds = new HashSet<>();
             for (World world : Bukkit.getWorlds()) {
                 worlds.add(world.getName());
             }
@@ -77,7 +77,7 @@ class ExcursionTypeCompleter implements TypeCompleter {
                 }
             }
 
-            List<String> result = new ArrayList<String>(worlds.size());
+            List<String> result = new ArrayList<>(worlds.size());
             StringUtil.copyPartialMatches(partial, worlds, result);
             Collections.sort(result);
             return result;

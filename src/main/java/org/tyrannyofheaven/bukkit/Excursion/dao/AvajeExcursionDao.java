@@ -137,8 +137,8 @@ public class AvajeExcursionDao extends BaseMemoryExcursionDao {
             List<SavedLocation> sls = getEbeanServer().createQuery(SavedLocation.class).findList();
 
             // Figure out what needs migrating
-            Set<String> usernames = new HashSet<String>();
-            List<SavedLocation> toMigrate = new ArrayList<SavedLocation>();
+            Set<String> usernames = new HashSet<>();
+            List<SavedLocation> toMigrate = new ArrayList<>();
             for (SavedLocation sl : sls) {
                 Matcher m = UuidUtils.SHORT_UUID_RE.matcher(sl.getId().getPlayer());
                 if (!m.matches()) {
@@ -151,7 +151,7 @@ public class AvajeExcursionDao extends BaseMemoryExcursionDao {
             Map<String, UuidDisplayName> resolved = uuidResolver.resolve(usernames);
 
             // Update IDs
-            List<SavedLocation> toSave = new ArrayList<SavedLocation>();
+            List<SavedLocation> toSave = new ArrayList<>();
             for (SavedLocation sl : toMigrate) {
                 UuidDisplayName udn = resolved.get(sl.getId().getPlayer().toLowerCase());
                 if (udn != null) {

@@ -28,7 +28,7 @@ import org.tyrannyofheaven.bukkit.Excursion.model.SavedLocationId;
 
 public abstract class BaseMemoryExcursionDao implements ExcursionDao {
 
-    private final HashMap<SavedLocationId, SavedLocation> savedLocations = new HashMap<SavedLocationId, SavedLocation>();
+    private final HashMap<SavedLocationId, SavedLocation> savedLocations = new HashMap<>();
 
     protected HashMap<SavedLocationId, SavedLocation> getSavedLocations() {
         return savedLocations;

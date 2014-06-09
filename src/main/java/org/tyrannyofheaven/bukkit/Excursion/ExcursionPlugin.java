@@ -62,18 +62,18 @@ public class ExcursionPlugin extends JavaPlugin {
 
     private VersionInfo versionInfo;
 
-    private final Map<String, String> aliasMap = new HashMap<String, String>();
+    private final Map<String, String> aliasMap = new HashMap<>();
 
-    private final Map<String, String> groupMap = new HashMap<String, String>();
+    private final Map<String, String> groupMap = new HashMap<>();
 
-    private final Map<String, GroupOptions> optionsMap = new HashMap<String, GroupOptions>();
+    private final Map<String, GroupOptions> optionsMap = new HashMap<>();
 
     private final GroupOptions DEFAULT_GROUP_OPTIONS = new GroupOptions();
 
     // Default max attempts (after the first) to complete a transaction
     private static final int DEFAULT_TXN_MAX_RETRIES = 3;
 
-    private final Set<String> blacklist = new HashSet<String>();
+    private final Set<String> blacklist = new HashSet<>();
 
     private FileConfiguration config;
 
@@ -95,7 +95,7 @@ public class ExcursionPlugin extends JavaPlugin {
 
         // Build list of blocks that would harm the player should they teleport
         // inside.
-        Set<Material> solids = new HashSet<Material>();
+        Set<Material> solids = new HashSet<>();
         for (Material m : Material.values()) {
             if (!m.isSolid()) continue; // Must be solid
             if (m.isTransparent()) continue; // Can't harm if fully transparent
@@ -139,7 +139,7 @@ public class ExcursionPlugin extends JavaPlugin {
 
     @Override
     public List<Class<?>> getDatabaseClasses() {
-        List<Class<?>> result = new ArrayList<Class<?>>();
+        List<Class<?>> result = new ArrayList<>();
         result.add(SavedLocationId.class);
         result.add(SavedLocation.class);
         return result;
